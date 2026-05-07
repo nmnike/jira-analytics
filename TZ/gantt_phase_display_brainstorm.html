@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brainstorm: Отображение фаз в Gantt</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d1c33;
+    color: #c8d8f0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    background: #0f2340;
+    border-bottom: 1px solid #1e3a5f;
+    padding: 20px 32px 16px;
+  }
+
+  .page-header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e8f0ff;
+    margin-bottom: 4px;
+  }
+
+  .page-header p {
+    font-size: 13px;
+    color: #7090b0;
+  }
+
+  /* TABS */
+  .tabs-nav {
+    display: flex;
+    gap: 4px;
+    padding: 16px 32px 0;
+    border-bottom: 1px solid #1e3a5f;
+    background: #0f2340;
+  }
+
+  .tab-btn {
+    padding: 9px 22px;
+    border: none;
+    border-radius: 6px 6px 0 0;
+    background: transparent;
+    color: #7090b0;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  .tab-btn:hover { color: #c8d8f0; background: #162d4a; }
+
+  .tab-btn.active {
+    color: #00c9c8;
+    border-bottom-color: #00c9c8;
+    background: #0d1c33;
+  }
+
+  .tab-pane { display: none; padding: 28px 32px 40px; }
+  .tab-pane.active { display: block; }
+
+  /* OPTION CARD */
+  .option-label {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .option-label .badge {
+    background: #00c9c8;
+    color: #0d1c33;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .option-label h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e8f0ff;
+  }
+
+  .option-desc {
+    font-size: 13px;
+    color: #7090b0;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    max-width: 720px;
+  }
+
+  /* GANTT WRAPPER */
+  .gantt-wrap {
+    background: #0f2340;
+    border: 1px solid #1e3a5f;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    background: #0a1628;
+    border-bottom: 1px solid #1e3a5f;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #90a8c8;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* GANTT GRID */
+  .gantt-grid {
+    overflow-x: auto;
+  }
+
+  .gantt-table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+  }
+
+  /* Header row */
+  .gantt-header {
+    background: #0a1628;
+  }
+
+  .gantt-header td {
+    padding: 6px 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: #4a6888;
+    text-align: center;
+    border-right: 1px solid #1e3a5f;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .gantt-header td.label-col {
+    text-align: left;
+    padding-left: 14px;
+    border-right: 1px solid #2a4060;
+  }
+
+  /* Label column */
+  .label-col {
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+    padding: 0 10px 0 14px;
+    border-right: 1px solid #2a4060;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Timeline columns */
+  .week-col {
+    width: calc((100% - 200px) / 13);
+    min-width: 56px;
+    border-right: 1px solid #162d4a;
+  }
+
+  /* Data rows */
+  .gantt-row td {
+    height: 36px;
+    border-right: 1px solid #162d4a;
+    position: relative;
+  }
+
+  .gantt-row:hover td { background: rgba(255,255,255,0.02); }
+
+  .gantt-row td.label-col {
+    font-size: 12px;
+    color: #c8d8f0;
+    border-right: 1px solid #2a4060;
+    padding: 0 10px 0 14px;
+  }
+
+  /* Group header rows */
+  .group-header td {
+    background: #0a1628;
+    padding: 6px 0 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #90a8c8;
+    letter-spacing: 0.03em;
+    border-top: 1px solid #2a4060;
+    border-bottom: 1px solid #1e3a5f;
+  }
+
+  .group-header td:first-child {
+    border-left: 3px solid #00c9c8;
+  }
+
+  /* TODAY MARKER — using a pseudo approach via inline style on cells */
+  .today-cell {
+    background: rgba(0, 201, 200, 0.06) !important;
+    border-right: 2px solid rgba(0, 201, 200, 0.5) !important;
+  }
+
+  .today-label {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #00c9c8;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* BAR RENDERING — using background on a single timeline cell with a wrapper div */
+  .bar-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* CHOICE BUTTON */
+  .choice-row {
+    padding: 20px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .choice-btn {
+    padding: 10px 28px;
+    background: #162d4a;
+    border: 1px solid #2a4a70;
+    border-radius: 6px;
+    color: #c8d8f0;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .choice-btn:hover {
+    background: #1e3a5f;
+    border-color: #00c9c8;
+    color: #e8f0ff;
+  }
+
+  .choice-btn.selected {
+    background: #00c9c8;
+    border-color: #00c9c8;
+    color: #0d1c33;
+    font-weight: 700;
+  }
+
+  .choice-hint {
+    font-size: 12px;
+    color: #4a6888;
+  }
+
+  /* PROS/CONS */
+  .pros-cons {
+    display: flex;
+    gap: 16px;
+    margin: 16px 0 20px;
+  }
+
+  .pros, .cons {
+    flex: 1;
+    background: #0a1628;
+    border-radius: 6px;
+    padding: 12px 14px;
+    border: 1px solid #1e3a5f;
+  }
+
+  .pros h4 { color: #52d364; font-size: 11px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .cons h4 { color: #e8864a; font-size: 11px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .pros ul, .cons ul { list-style: none; padding: 0; }
+  .pros li, .cons li { font-size: 12px; color: #90a8c8; line-height: 1.7; padding-left: 12px; position: relative; }
+  .pros li::before { content: '+'; position: absolute; left: 0; color: #52d364; font-weight: 700; }
+  .cons li::before { content: '−'; position: absolute; left: 0; color: #e8864a; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Как отображать фазы внутри инициативы?</h1>
+  <p>Gantt-планировщик квартала · три варианта · выберите подходящий</p>
+</div>
+
+<div class="tabs-nav">
+  <button class="tab-btn active" onclick="switchTab('a')">Вариант A — Одна строка</button>
+  <button class="tab-btn" onclick="switchTab('b')">Вариант B — Четыре подстроки</button>
+  <button class="tab-btn" onclick="switchTab('c')">Вариант C — Треки по ролям</button>
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB A -->
+<!-- ================================================================ -->
+<div id="tab-a" class="tab-pane active">
+  <div class="option-label">
+    <span class="badge">A</span>
+    <h2>Одна строка с цветными сегментами</h2>
+  </div>
+  <p class="option-desc">
+    Каждая инициатива — одна строка. Полоса разбита на 4 цветных сегмента: Анализ → Разработка → Тест → ОПЭ.
+    Конвейерный эффект виден из-за сдвига строк: аналитик уходит вперёд, пока разработчик ещё работает над предыдущей инициативой.
+  </p>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Плюсы</h4>
+      <ul>
+        <li>Минимум строк — квартал из 20 инициатив умещается на экране</li>
+        <li>Конвейер виден сразу: строки «лесенкой»</li>
+        <li>Просто читать: одна инициатива = одна строка</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Минусы</h4>
+      <ul>
+        <li>Не видно точных дат начала/конца отдельной фазы</li>
+        <li>Сложно понять загрузку конкретного человека</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="gantt-wrap">
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#00c9c8;"></div> Анализ (Аналитик)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2a7fbf;"></div> Разработка (Программист)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e8864a;"></div> Тестирование (QA)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#52d364;"></div> ОПЭ (Команда)</div>
+      <div class="legend-item"><div style="width:12px;height:12px;border-left:2px dashed rgba(0,201,200,0.7);"></div> Сегодня (W9)</div>
+    </div>
+    <div class="gantt-grid">
+      <table class="gantt-table" id="gantt-a">
+        <!-- Built by JS -->
+      </table>
+    </div>
+  </div>
+
+  <div class="choice-row">
+    <button class="choice-btn" data-choice="a" onclick="toggleSelect(this)">Выбрать этот вариант</button>
+    <span class="choice-hint">Лучший выбор для плотного расписания с большим числом инициатив</span>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB B -->
+<!-- ================================================================ -->
+<div id="tab-b" class="tab-pane">
+  <div class="option-label">
+    <span class="badge">B</span>
+    <h2>Четыре подстроки на инициативу</h2>
+  </div>
+  <p class="option-desc">
+    Каждая инициатива раскрывается в 4 подстроки — по одной на фазу. Видны точные даты начала и конца каждой фазы,
+    исполнитель подписан прямо в строке. Группы инициатив разделены заголовком.
+  </p>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Плюсы</h4>
+      <ul>
+        <li>Точные даты каждой фазы видны без клика</li>
+        <li>Исполнитель указан в строке — нет путаницы</li>
+        <li>Удобно для детального планирования и согласования</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Минусы</h4>
+      <ul>
+        <li>5 строк на инициативу: 20 инициатив = 100 строк — не умещается</li>
+        <li>Общая картина конвейера теряется</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="gantt-wrap">
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#00c9c8;"></div> Анализ</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2a7fbf;"></div> Разработка</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e8864a;"></div> Тестирование</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#52d364;"></div> ОПЭ</div>
+    </div>
+    <div class="gantt-grid">
+      <table class="gantt-table" id="gantt-b"></table>
+    </div>
+  </div>
+
+  <div class="choice-row">
+    <button class="choice-btn" data-choice="b" onclick="toggleSelect(this)">Выбрать этот вариант</button>
+    <span class="choice-hint">Лучший выбор когда важно видеть детали и согласовывать конкретные даты</span>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB C -->
+<!-- ================================================================ -->
+<div id="tab-c" class="tab-pane">
+  <div class="option-label">
+    <span class="badge">C</span>
+    <h2>Два трека: аналитик и программист</h2>
+  </div>
+  <p class="option-desc">
+    Группировка по исполнителю, а не по инициативе. Каждая роль — отдельная секция.
+    Видна загрузка ресурса: пробелы (недозагрузка) и пересечения (перегруз) бросаются в глаза.
+    Цвет полосы — инициатива.
+  </p>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Плюсы</h4>
+      <ul>
+        <li>Сразу видно: кто перегружен, у кого окно</li>
+        <li>Удобно планировать параллельные работы</li>
+        <li>Стандартный вид resource-Gantt</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Минусы</h4>
+      <ul>
+        <li>Теряется связь «что происходит с инициативой в целом»</li>
+        <li>Чтобы найти все фазы одной инициативы — нужно смотреть 4 строки в разных секциях</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="gantt-wrap">
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#e85d8a;"></div> Инициатива 1</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#9b6dff;"></div> Инициатива 2</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f0c040;"></div> Инициатива 3</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00c9c8;"></div> Инициатива 4</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#52d364;"></div> Инициатива 5</div>
+    </div>
+    <div class="gantt-grid">
+      <table class="gantt-table" id="gantt-c"></table>
+    </div>
+  </div>
+
+  <div class="choice-row">
+    <button class="choice-btn" data-choice="c" onclick="toggleSelect(this)">Выбрать этот вариант</button>
+    <span class="choice-hint">Лучший выбор для управления загрузкой и поиска узких мест по ресурсам</span>
+  </div>
+</div>
+
+<script>
+// -----------------------------------------------------------------------
+// TAB SWITCHING
+// -----------------------------------------------------------------------
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['a','b','c'][i] === id);
+  });
+  document.querySelectorAll('.tab-pane').forEach(p => {
+    p.classList.toggle('active', p.id === 'tab-' + id);
+  });
+}
+
+// -----------------------------------------------------------------------
+// TOGGLE SELECT (injected by server; fallback defined here)
+// -----------------------------------------------------------------------
+if (typeof toggleSelect === 'undefined') {
+  window.toggleSelect = function(btn) {
+    const wasSelected = btn.classList.contains('selected');
+    document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+    if (!wasSelected) btn.classList.add('selected');
+  };
+}
+
+// -----------------------------------------------------------------------
+// SHARED CONSTANTS
+// -----------------------------------------------------------------------
+const WEEKS = 13;
+const TODAY_WEEK = 9; // W9 = "today"
+
+const PHASE_COLORS = {
+  analysis:  '#00c9c8',
+  dev:       '#2a7fbf',
+  test:      '#e8864a',
+  ope:       '#52d364',
+};
+
+const INI_COLORS = ['#e85d8a','#9b6dff','#f0c040','#00c9c8','#52d364'];
+
+// -----------------------------------------------------------------------
+// GANTT UTILITIES
+// -----------------------------------------------------------------------
+
+/**
+ * Build the header row (label col + W1..W13)
+ */
+function buildHeaderRow(todayWeek) {
+  const tr = document.createElement('tr');
+  tr.className = 'gantt-header';
+  const th0 = document.createElement('td');
+  th0.className = 'label-col';
+  th0.textContent = 'Инициатива / Фаза';
+  tr.appendChild(th0);
+
+  for (let w = 1; w <= WEEKS; w++) {
+    const td = document.createElement('td');
+    td.className = 'week-col';
+    td.textContent = 'W' + w;
+    if (w === todayWeek) td.classList.add('today-cell');
+    tr.appendChild(td);
+  }
+  return tr;
+}
+
+/**
+ * Render a bar row.
+ * segments: [{start, end, color, label}]  (start/end are 1-based week numbers, inclusive)
+ * rowLabel: string
+ * subLabel: optional string (dimmer, for person name)
+ * isGroupHeader: renders as group-header style row with no bars
+ */
+function buildBarRow(rowLabel, subLabel, segments, todayWeek, opts) {
+  opts = opts || {};
+  const tr = document.createElement('tr');
+  tr.className = opts.isGroupHeader ? 'group-header' : 'gantt-row';
+
+  // label cell
+  const labelTd = document.createElement('td');
+  labelTd.className = 'label-col';
+
+  if (opts.isGroupHeader) {
+    labelTd.colSpan = WEEKS + 1;
+    labelTd.textContent = rowLabel;
+    tr.appendChild(labelTd);
+    return tr;
+  }
+
+  // Normal bar row
+  const labelWrap = document.createElement('div');
+  labelWrap.style.cssText = 'display:flex;flex-direction:column;gap:1px;';
+
+  const mainSpan = document.createElement('span');
+  mainSpan.textContent = rowLabel;
+  mainSpan.style.cssText = 'font-size:12px;color:#c8d8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:172px;display:block;';
+  labelWrap.appendChild(mainSpan);
+
+  if (subLabel) {
+    const sub = document.createElement('span');
+    sub.textContent = subLabel;
+    sub.style.cssText = 'font-size:10px;color:#4a6888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:172px;display:block;';
+    labelWrap.appendChild(sub);
+  }
+
+  labelTd.appendChild(labelWrap);
+  tr.appendChild(labelTd);
+
+  // Build a map: week → segment info
+  const segMap = {};
+  segments.forEach(seg => {
+    for (let w = seg.start; w <= seg.end; w++) {
+      segMap[w] = seg;
+    }
+  });
+
+  // Track merged cells: find contiguous spans per segment
+  // We'll use colSpan trick — render one td per segment span, skip covered weeks
+  const covered = {};
+
+  for (let w = 1; w <= WEEKS; w++) {
+    if (covered[w]) continue;
+
+    const seg = segMap[w];
+    const td = document.createElement('td');
+    td.className = 'week-col';
+    if (w === todayWeek && !seg) td.classList.add('today-cell');
+
+    if (seg) {
+      // Find the actual contiguous span of THIS segment starting at w
+      let spanEnd = w;
+      while (spanEnd < WEEKS && segMap[spanEnd + 1] === seg) spanEnd++;
+
+      const span = spanEnd - w + 1;
+      if (span > 1) td.colSpan = span;
+
+      // Mark all covered
+      for (let ww = w; ww <= spanEnd; ww++) covered[ww] = true;
+
+      // Style the bar
+      td.style.cssText = 'padding:4px 2px;vertical-align:middle;position:relative;';
+
+      // Check if today falls inside this segment
+      const todayInside = (todayWeek >= w && todayWeek <= spanEnd);
+      if (todayInside) {
+        // add a today line pseudo — we'll use a wrapper with position relative
+      }
+
+      const bar = document.createElement('div');
+      const barHeight = opts.thinBar ? '16px' : '20px';
+
+      bar.style.cssText =
+        `background:${seg.color};` +
+        `border-radius:3px;` +
+        `height:${barHeight};` +
+        `display:flex;align-items:center;justify-content:center;` +
+        `overflow:hidden;` +
+        `position:relative;` +
+        `box-shadow:0 1px 4px rgba(0,0,0,0.4);`;
+
+      if (seg.label) {
+        const lbl = document.createElement('span');
+        lbl.textContent = seg.label;
+        lbl.style.cssText =
+          'font-size:10px;font-weight:600;color:rgba(0,0,0,0.75);' +
+          'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;';
+        bar.appendChild(lbl);
+      }
+
+      // Today marker inside the bar
+      if (todayInside) {
+        const totalSpanWeeks = spanEnd - w + 1;
+        const offsetWeeks = todayWeek - w;
+        const pct = ((offsetWeeks / totalSpanWeeks) * 100).toFixed(1);
+        const marker = document.createElement('div');
+        marker.style.cssText =
+          `position:absolute;top:0;bottom:0;left:${pct}%;` +
+          `width:2px;background:rgba(255,255,255,0.6);z-index:2;`;
+        bar.appendChild(marker);
+      }
+
+      td.appendChild(bar);
+
+      // Today left-border on cell when cell starts at today
+      if (w === todayWeek) {
+        td.style.borderLeft = '2px dashed rgba(0,201,200,0.6)';
+      }
+    } else {
+      // Empty cell
+      if (w === todayWeek) {
+        td.classList.add('today-cell');
+        td.style.borderLeft = '2px dashed rgba(0,201,200,0.5)';
+      }
+    }
+
+    tr.appendChild(td);
+  }
+
+  return tr;
+}
+
+// -----------------------------------------------------------------------
+// GANTT A — single row per initiative
+// -----------------------------------------------------------------------
+(function buildGanttA() {
+  const table = document.getElementById('gantt-a');
+
+  // initiatives: [{name, analysis:[s,e], dev:[s,e], test:[s,e], ope:[s,e]}]
+  // Pipeline simulation (durations in weeks):
+  // analysis: 2w, dev: 3w, test: 1w, ope: 1w
+  // analyst pipeline: starts next initiative immediately after finishing analysis
+  const initiatives = [
+    { name: 'Личный кабинет клиента',    a:[1,2],  d:[3,5],   t:[6,6],   o:[7,7]  },
+    { name: 'Интеграция с 1С',           a:[3,4],  d:[5,7],   t:[8,8],   o:[9,9]  },
+    { name: 'Мобильное приложение v2',   a:[5,6],  d:[7,9],   t:[10,10], o:[11,11] },
+    { name: 'Аналитика продаж',          a:[7,8],  d:[9,11],  t:[12,12], o:[13,13] },
+    { name: 'Оптимизация БД',            a:[9,10], d:[11,12], t:[13,13], o:[13,13] },
+  ];
+
+  table.appendChild(buildHeaderRow(TODAY_WEEK));
+
+  initiatives.forEach((ini, idx) => {
+    const segments = [
+      { start: ini.a[0], end: ini.a[1], color: PHASE_COLORS.analysis,  label: 'Анализ'  },
+      { start: ini.d[0], end: ini.d[1], color: PHASE_COLORS.dev,       label: 'Разраб.' },
+      { start: ini.t[0], end: ini.t[1], color: PHASE_COLORS.test,      label: 'Тест'    },
+      { start: ini.o[0], end: ini.o[1], color: PHASE_COLORS.ope,       label: 'ОПЭ'     },
+    ];
+    const tr = buildBarRow(
+      ini.name,
+      'Иванова И. → Петров С. → Сидоров А.',
+      segments,
+      TODAY_WEEK,
+      {}
+    );
+    table.appendChild(tr);
+  });
+})();
+
+// -----------------------------------------------------------------------
+// GANTT B — 4 sub-rows per initiative
+// -----------------------------------------------------------------------
+(function buildGanttB() {
+  const table = document.getElementById('gantt-b');
+
+  const initiatives = [
+    {
+      name: 'Личный кабинет клиента',
+      phases: [
+        { label: 'Анализ',      person: 'Иванова И.',   start: 1,  end: 2,  color: PHASE_COLORS.analysis },
+        { label: 'Разработка',  person: 'Петров С.',    start: 3,  end: 5,  color: PHASE_COLORS.dev      },
+        { label: 'Тестирование',person: 'Сидоров А.',   start: 6,  end: 6,  color: PHASE_COLORS.test     },
+        { label: 'ОПЭ',         person: 'Команда',      start: 7,  end: 7,  color: PHASE_COLORS.ope      },
+      ]
+    },
+    {
+      name: 'Интеграция с 1С',
+      phases: [
+        { label: 'Анализ',      person: 'Иванова И.',   start: 3,  end: 4,  color: PHASE_COLORS.analysis },
+        { label: 'Разработка',  person: 'Петров С.',    start: 5,  end: 7,  color: PHASE_COLORS.dev      },
+        { label: 'Тестирование',person: 'Сидоров А.',   start: 8,  end: 8,  color: PHASE_COLORS.test     },
+        { label: 'ОПЭ',         person: 'Команда',      start: 9,  end: 9,  color: PHASE_COLORS.ope      },
+      ]
+    },
+    {
+      name: 'Мобильное приложение v2',
+      phases: [
+        { label: 'Анализ',      person: 'Иванова И.',   start: 5,  end: 6,  color: PHASE_COLORS.analysis },
+        { label: 'Разработка',  person: 'Петров С.',    start: 7,  end: 9,  color: PHASE_COLORS.dev      },
+        { label: 'Тестирование',person: 'Сидоров А.',   start: 10, end: 10, color: PHASE_COLORS.test     },
+        { label: 'ОПЭ',         person: 'Команда',      start: 11, end: 11, color: PHASE_COLORS.ope      },
+      ]
+    },
+  ];
+
+  table.appendChild(buildHeaderRow(TODAY_WEEK));
+
+  initiatives.forEach(ini => {
+    // Group header
+    table.appendChild(buildBarRow(ini.name, null, [], TODAY_WEEK, { isGroupHeader: true }));
+
+    // Phase sub-rows
+    ini.phases.forEach(ph => {
+      const segments = [{ start: ph.start, end: ph.end, color: ph.color, label: ph.label }];
+      const tr = buildBarRow(
+        ph.label,
+        ph.person,
+        segments,
+        TODAY_WEEK,
+        { thinBar: true }
+      );
+      // Indent the label
+      tr.querySelector('.label-col').style.paddingLeft = '28px';
+      table.appendChild(tr);
+    });
+  });
+})();
+
+// -----------------------------------------------------------------------
+// GANTT C — resource tracks
+// -----------------------------------------------------------------------
+(function buildGanttC() {
+  const table = document.getElementById('gantt-c');
+
+  const iniNames = [
+    'Личный кабинет',
+    'Интеграция с 1С',
+    'Моб. приложение',
+    'Аналитика продаж',
+    'Оптимизация БД',
+  ];
+
+  // Resource tracks
+  const tracks = [
+    {
+      person: 'Аналитик Иванова И.',
+      role: 'Анализ всех инициатив',
+      segments: [
+        { start: 1,  end: 2,  color: INI_COLORS[0], label: iniNames[0] },
+        { start: 3,  end: 4,  color: INI_COLORS[1], label: iniNames[1] },
+        { start: 5,  end: 6,  color: INI_COLORS[2], label: iniNames[2] },
+        { start: 7,  end: 8,  color: INI_COLORS[3], label: iniNames[3] },
+        { start: 9,  end: 10, color: INI_COLORS[4], label: iniNames[4] },
+      ]
+    },
+    {
+      person: 'Программист Петров С.',
+      role: 'Разработка всех инициатив',
+      segments: [
+        { start: 3,  end: 5,  color: INI_COLORS[0], label: iniNames[0] },
+        { start: 5,  end: 7,  color: INI_COLORS[1], label: iniNames[1] },
+        { start: 7,  end: 9,  color: INI_COLORS[2], label: iniNames[2] },
+        { start: 9,  end: 11, color: INI_COLORS[3], label: iniNames[3] },
+        { start: 11, end: 12, color: INI_COLORS[4], label: iniNames[4] },
+      ]
+    },
+    {
+      person: 'QA Сидоров А.',
+      role: 'Тестирование всех инициатив',
+      segments: [
+        { start: 6,  end: 6,  color: INI_COLORS[0], label: iniNames[0] },
+        { start: 8,  end: 8,  color: INI_COLORS[1], label: iniNames[1] },
+        { start: 10, end: 10, color: INI_COLORS[2], label: iniNames[2] },
+        { start: 12, end: 12, color: INI_COLORS[3], label: iniNames[3] },
+        { start: 13, end: 13, color: INI_COLORS[4], label: iniNames[4] },
+      ]
+    },
+    {
+      person: 'Команда (ОПЭ)',
+      role: 'Пилотная эксплуатация',
+      segments: [
+        { start: 7,  end: 7,  color: INI_COLORS[0], label: iniNames[0] },
+        { start: 9,  end: 9,  color: INI_COLORS[1], label: iniNames[1] },
+        { start: 11, end: 11, color: INI_COLORS[2], label: iniNames[2] },
+        { start: 13, end: 13, color: INI_COLORS[3], label: iniNames[3] },
+      ]
+    },
+  ];
+
+  table.appendChild(buildHeaderRow(TODAY_WEEK));
+
+  // For track C, segments can overlap in display — we merge and stack
+  // Simplification: for this mockup treat non-overlapping (in the actual data they are sequential per resource)
+  tracks.forEach(track => {
+    // Group header
+    const gh = buildBarRow(track.person + ' — ' + track.role, null, [], TODAY_WEEK, { isGroupHeader: true });
+    table.appendChild(gh);
+
+    // Single bar row with all segments
+    const tr = buildBarRow(
+      track.person,
+      track.role,
+      track.segments,
+      TODAY_WEEK,
+      {}
+    );
+    table.appendChild(tr);
+  });
+
+  // Add a note row explaining the gap
+  // (The QA gap between W6 and W8 is intentional — show it's visible)
+  const noteRow = document.createElement('tr');
+  noteRow.style.cssText = 'background:transparent;';
+  const noteTd = document.createElement('td');
+  noteTd.colSpan = WEEKS + 1;
+  noteTd.style.cssText = 'padding:8px 14px;font-size:11px;color:#4a6888;font-style:italic;border-top:1px dashed #1e3a5f;';
+  noteTd.textContent = '↑ Пустые ячейки — незанятое время ресурса. QA свободен в W7, W9, W11 (видно сразу).';
+  noteRow.appendChild(noteTd);
+  table.appendChild(noteRow);
+})();
+</script>
+</body>
+</html>

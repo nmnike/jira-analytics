@@ -1,0 +1,266 @@
+<h2>На каком уровне детализации строим Gantt?</h2>
+<p class="subtitle">Выберите уровень детализации для планировщика. Каждый вариант отражает разный баланс между обзорностью и глубиной.</p>
+
+<div class="cards">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <!-- Mini Gantt: Portfolio level -->
+      <div style="padding: 12px 10px; font-size: 11px; color: #a0b8d0;">
+        <div style="display: flex; align-items: center; margin-bottom: 2px;">
+          <div style="width: 90px; font-size: 10px; color: #7a9ab8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;">Инициатива A</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 3px; height: 14px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 0%; width: 65%; height: 100%; background: linear-gradient(90deg, #00c9c8, #00a8a7); border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 2px;">
+          <div style="width: 90px; font-size: 10px; color: #7a9ab8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;">Инициатива B</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 3px; height: 14px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 20%; width: 50%; height: 100%; background: linear-gradient(90deg, #00c9c8, #00a8a7); border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 2px;">
+          <div style="width: 90px; font-size: 10px; color: #7a9ab8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;">Инициатива C</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 3px; height: 14px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 10%; width: 80%; height: 100%; background: linear-gradient(90deg, #00c9c8, #00a8a7); border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 2px;">
+          <div style="width: 90px; font-size: 10px; color: #7a9ab8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;">Инициатива D</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 3px; height: 14px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 40%; width: 45%; height: 100%; background: linear-gradient(90deg, #00c9c8, #00a8a7); border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <div style="width: 90px; font-size: 10px; color: #7a9ab8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;">Инициатива E</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 3px; height: 14px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 55%; width: 35%; height: 100%; background: linear-gradient(90deg, #00c9c8, #00a8a7); border-radius: 3px;"></div>
+          </div>
+        </div>
+        <!-- Capacity heatmap below -->
+        <div style="border-top: 1px solid #1a3050; padding-top: 6px; margin-top: 2px;">
+          <div style="font-size: 9px; color: #4a6a88; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Загрузка команды</div>
+          <div style="display: flex; gap: 2px; margin-bottom: 2px; align-items: center;">
+            <div style="width: 46px; font-size: 9px; color: #4a6a88;">Аналитики</div>
+            <div style="flex: 1; display: flex; gap: 1px;">
+              <div style="flex:1; height: 8px; background: #1a4a2e; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #1e6a35; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #e85d4a; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #d4a017; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #1a4a2e; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #1e6a35; border-radius: 1px;"></div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 2px; margin-bottom: 2px; align-items: center;">
+            <div style="width: 46px; font-size: 9px; color: #4a6a88;">Разработка</div>
+            <div style="flex: 1; display: flex; gap: 1px;">
+              <div style="flex:1; height: 8px; background: #1e6a35; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #1e6a35; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #1a4a2e; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #e85d4a; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #e85d4a; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #1e6a35; border-radius: 1px;"></div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 2px; align-items: center;">
+            <div style="width: 46px; font-size: 9px; color: #4a6a88;">QA</div>
+            <div style="flex: 1; display: flex; gap: 1px;">
+              <div style="flex:1; height: 8px; background: #1a4a2e; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #1a4a2e; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #1e6a35; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #1e6a35; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #d4a017; border-radius: 1px;"></div>
+              <div style="flex:1; height: 8px; background: #e85d4a; border-radius: 1px;"></div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;">
+            <span style="font-size: 8px; color: #1e6a35;">&#9632; норма</span>
+            <span style="font-size: 8px; color: #d4a017;">&#9632; риск</span>
+            <span style="font-size: 8px; color: #e85d4a;">&#9632; перегруз</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Портфельный Gantt</h3>
+      <p>Каждая строка — одна инициатива. Видна картина квартала целиком: что когда, где пересечения, где перегрузка команды. Под диаграммой — тепловая карта загрузки по ролям.</p>
+      <ul>
+        <li>10–30 строк на квартал</li>
+        <li>Тепловая карта загрузки по ролям</li>
+        <li>Быстро строится — данные уже есть</li>
+        <li><strong>Целевая аудитория:</strong> PM, руководство</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <!-- Mini Gantt: Two-level with expand/collapse -->
+      <div style="padding: 12px 10px; font-size: 11px; color: #a0b8d0;">
+
+        <!-- Initiative 1 - collapsed header -->
+        <div style="display: flex; align-items: center; margin-bottom: 2px;">
+          <div style="width: 90px; font-size: 10px; color: #00c9c8; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; display: flex; align-items: center; gap: 3px;">
+            <span style="font-size: 8px;">▼</span> Инициатива A
+          </div>
+          <div style="flex: 1; background: #0a1929; border-radius: 3px; height: 14px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 0%; width: 70%; height: 100%; background: linear-gradient(90deg, rgba(0,201,200,0.35), rgba(0,168,167,0.35)); border-radius: 3px; border: 1px solid rgba(0,201,200,0.4);"></div>
+          </div>
+        </div>
+        <!-- Epics under Initiative 1 -->
+        <div style="display: flex; align-items: center; margin-bottom: 2px; padding-left: 10px;">
+          <div style="width: 80px; font-size: 9px; color: #7a9ab8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;">Epic: Авторизация</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 2px; height: 10px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 0%; width: 30%; height: 100%; background: #2a7fbf; border-radius: 2px;"></div>
+            <!-- Dependency arrow simulation -->
+            <div style="position: absolute; left: 30%; top: 3px; width: 12px; height: 4px; border-right: 1px solid #e8864a; border-bottom: 1px solid #e8864a;"></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 2px; padding-left: 10px;">
+          <div style="width: 80px; font-size: 9px; color: #7a9ab8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;">Epic: API v2</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 2px; height: 10px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 25%; width: 40%; height: 100%; background: #2a7fbf; border-radius: 2px;"></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 4px; padding-left: 10px;">
+          <div style="width: 80px; font-size: 9px; color: #7a9ab8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;">Epic: UI Kit</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 2px; height: 10px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 40%; width: 30%; height: 100%; background: #2a7fbf; border-radius: 2px;"></div>
+          </div>
+        </div>
+
+        <!-- Initiative 2 - collapsed -->
+        <div style="display: flex; align-items: center; margin-bottom: 2px;">
+          <div style="width: 90px; font-size: 10px; color: #00c9c8; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; display: flex; align-items: center; gap: 3px;">
+            <span style="font-size: 8px;">▶</span> Инициатива B
+          </div>
+          <div style="flex: 1; background: #0a1929; border-radius: 3px; height: 14px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 30%; width: 50%; height: 100%; background: linear-gradient(90deg, rgba(0,201,200,0.35), rgba(0,168,167,0.35)); border-radius: 3px; border: 1px solid rgba(0,201,200,0.4);"></div>
+          </div>
+        </div>
+
+        <!-- Initiative 3 - collapsed -->
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <div style="width: 90px; font-size: 10px; color: #00c9c8; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; display: flex; align-items: center; gap: 3px;">
+            <span style="font-size: 8px;">▶</span> Инициатива C
+          </div>
+          <div style="flex: 1; background: #0a1929; border-radius: 3px; height: 14px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 50%; width: 40%; height: 100%; background: linear-gradient(90deg, rgba(0,201,200,0.35), rgba(0,168,167,0.35)); border-radius: 3px; border: 1px solid rgba(0,201,200,0.4);"></div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div style="border-top: 1px solid #1a3050; padding-top: 6px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; gap: 8px;">
+            <span style="font-size: 8px; color: #4a8a9a; display: flex; align-items: center; gap: 3px;">
+              <span style="display: inline-block; width: 12px; height: 6px; background: rgba(0,201,200,0.35); border: 1px solid rgba(0,201,200,0.4); border-radius: 1px;"></span> инициатива
+            </span>
+            <span style="font-size: 8px; color: #4a6a88; display: flex; align-items: center; gap: 3px;">
+              <span style="display: inline-block; width: 12px; height: 6px; background: #2a7fbf; border-radius: 1px;"></span> эпик
+            </span>
+          </div>
+          <span style="font-size: 8px; color: #e8864a;">— зависимость</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Двухуровневый Gantt</h3>
+      <p>Инициативы раскрываются до уровня эпиков. Видны зависимости между эпиками, можно понять, что блокирует что. Баланс между обзором и детализацией.</p>
+      <ul>
+        <li>50–150 строк при полном раскрытии</li>
+        <li>Стрелки зависимостей между эпиками</li>
+        <li>Данные из Jira уже синхронизированы</li>
+        <li><strong>Целевая аудитория:</strong> PM + тимлиды</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <!-- Mini Gantt: Full task-level with critical path -->
+      <div style="padding: 12px 10px; font-size: 11px; color: #a0b8d0;">
+
+        <!-- Initiative header -->
+        <div style="display: flex; align-items: center; margin-bottom: 1px;">
+          <div style="width: 90px; font-size: 10px; color: #00c9c8; font-weight: 600; flex-shrink: 0; display: flex; align-items: center; gap: 2px;">
+            <span style="font-size: 7px;">▼</span> Инициатива A
+          </div>
+          <div style="flex: 1; background: #0a1929; border-radius: 3px; height: 12px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 0%; width: 70%; height: 100%; background: rgba(0,201,200,0.2); border-radius: 3px; border: 1px solid rgba(0,201,200,0.3);"></div>
+          </div>
+        </div>
+        <!-- Epic -->
+        <div style="display: flex; align-items: center; margin-bottom: 1px; padding-left: 8px;">
+          <div style="width: 82px; font-size: 9px; color: #5a8ab8; flex-shrink: 0; display: flex; align-items: center; gap: 2px;">
+            <span style="font-size: 7px;">▼</span> Epic: Auth
+          </div>
+          <div style="flex: 1; background: #0a1929; border-radius: 2px; height: 10px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 0%; width: 35%; height: 100%; background: rgba(42,127,191,0.5); border-radius: 2px;"></div>
+          </div>
+        </div>
+        <!-- Stories - critical path highlighted -->
+        <div style="display: flex; align-items: center; margin-bottom: 1px; padding-left: 16px;">
+          <div style="width: 74px; font-size: 8px; color: #e85d4a; flex-shrink: 0;">&#9654; Story: Login UI</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 2px; height: 8px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 0%; width: 18%; height: 100%; background: #e85d4a; border-radius: 2px; box-shadow: 0 0 4px rgba(232,93,74,0.5);"></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 1px; padding-left: 16px;">
+          <div style="width: 74px; font-size: 8px; color: #e85d4a; flex-shrink: 0;">&#9654; Story: JWT</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 2px; height: 8px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 18%; width: 15%; height: 100%; background: #e85d4a; border-radius: 2px; box-shadow: 0 0 4px rgba(232,93,74,0.5);"></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 1px; padding-left: 16px;">
+          <div style="width: 74px; font-size: 8px; color: #6a9ab8; flex-shrink: 0;">Story: Password</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 2px; height: 8px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 5%; width: 20%; height: 100%; background: #3a6a8a; border-radius: 2px;"></div>
+          </div>
+        </div>
+        <!-- Sub-tasks -->
+        <div style="display: flex; align-items: center; margin-bottom: 1px; padding-left: 24px;">
+          <div style="width: 66px; font-size: 7px; color: #4a6a78; flex-shrink: 0;">Sub: Form layout</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 1px; height: 6px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 5%; width: 8%; height: 100%; background: #2a4a5a; border-radius: 1px;"></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 4px; padding-left: 24px;">
+          <div style="width: 66px; font-size: 7px; color: #4a6a78; flex-shrink: 0;">Sub: Validation</div>
+          <div style="flex: 1; background: #0a1929; border-radius: 1px; height: 6px; position: relative; margin-left: 6px;">
+            <div style="position: absolute; left: 10%; width: 7%; height: 100%; background: #2a4a5a; border-radius: 1px;"></div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div style="border-top: 1px solid #1a3050; padding-top: 5px; display: flex; justify-content: space-between;">
+          <div style="text-align: center;">
+            <div style="font-size: 11px; color: #e85d4a; font-weight: 700;">2000+</div>
+            <div style="font-size: 7px; color: #4a6a88;">задач</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 11px; color: #d4a017; font-weight: 700;">4 уровня</div>
+            <div style="font-size: 7px; color: #4a6a88;">иерархии</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 11px; color: #00c9c8; font-weight: 700;">CPM</div>
+            <div style="font-size: 7px; color: #4a6a88;">критпуть</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Полный task-level Gantt</h3>
+      <p>Инициатива → Эпик → Story → Подзадача. Критический путь рассчитывается по всем задачам. Зависимости из Jira-поля "blocks". Уровень детализации MS Project.</p>
+      <ul>
+        <li>500–2000 строк при полном раскрытии</li>
+        <li>Автоматический расчёт критического пути</li>
+        <li>Сложно строить, сложно читать</li>
+        <li><strong>Целевая аудитория:</strong> тимлиды, PMO</li>
+      </ul>
+    </div>
+  </div>
+
+</div>

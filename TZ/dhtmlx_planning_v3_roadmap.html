@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Планирование ресурсов · Roadmap</title>
+
+<!-- DHTMLX Gantt Standard (GPL-2.0) -->
+<script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+<link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
+
+<!-- Google Fonts: JetBrains Mono (display) + IBM Plex Sans (body) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ─── Design tokens ─────────────────────────────────────────── */
+:root {
+  --bg:        #141414;
+  --bg-panel:  #1a1a1a;
+  --bg-card:   #1f1f1f;
+  --bg-hover:  #262626;
+  --border:    #303030;
+  --border-2:  #3a3a3a;
+  --text:      #e6e6e6;
+  --text-muted:#888;
+  --text-dim:  #555;
+  --accent:    #1677ff;
+  --accent-dim:#0d4a99;
+
+  /* Role colours */
+  --analyst:   #69b1ff;
+  --dev:       #b37feb;
+  --qa:        #95de64;
+  --ope:       #ffa940;
+
+  /* Load colours */
+  --load-ok:   #52c41a;
+  --load-warn: #faad14;
+  --load-over: #ff4d4f;
+
+  --header-h:  52px;
+  --sidebar-w: 300px;
+  --drill-h:   420px;
+
+  --radius: 6px;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ─── Reset & base ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Header ────────────────────────────────────────────────── */
+.app-header {
+  height: var(--header-h);
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.header-logo {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+.header-logo span { color: var(--accent); }
+
+.header-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.breadcrumb .crumb-active {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.breadcrumb .crumb-sep { color: var(--text-dim); }
+
+.header-spacer { flex: 1; }
+
+.quarter-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+}
+
+.quarter-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.quarter-btn:hover { background: var(--bg-hover); color: var(--text); }
+
+.quarter-btn.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 500;
+}
+
+.legend-pills {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+
+.legend-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* ─── Main layout ───────────────────────────────────────────── */
+.main-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ─── Roadmap area (left side) ──────────────────────────────── */
+.roadmap-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ─── Swimlane header ───────────────────────────────────────── */
+.swimlane-header {
+  height: 40px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.swimlane-header-role {
+  width: 140px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-right: 1px solid var(--border);
+}
+
+.week-headers {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.week-col {
+  flex: 1;
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  border-right: 1px solid var(--border);
+  padding: 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.3;
+}
+
+.week-col .wc-month { color: var(--text-muted); font-size: 9px; }
+.week-col .wc-num { font-size: 11px; font-weight: 600; color: var(--text); }
+.week-col.current-week { background: rgba(22, 119, 255, 0.08); }
+.week-col.current-week .wc-num { color: var(--accent); }
+
+/* ─── Swimlanes container ───────────────────────────────────── */
+.swimlanes-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.swimlane {
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  min-height: 90px;
+  position: relative;
+  transition: background 0.15s;
+}
+
+.swimlane:hover { background: rgba(255,255,255,0.01); }
+
+.swimlane-role-col {
+  width: 140px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+.role-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.role-badge.analyst { color: var(--analyst); background: rgba(105,177,255,0.1); }
+.role-badge.dev     { color: var(--dev);     background: rgba(179,127,235,0.1); }
+.role-badge.qa      { color: var(--qa);      background: rgba(149,222,100,0.1); }
+.role-badge.ope     { color: var(--ope);     background: rgba(255,169,64,0.1); }
+
+.role-meta {
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.role-meta b { color: var(--text-muted); }
+
+/* ─── Swimlane chart area ───────────────────────────────────── */
+.swimlane-chart {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Heatmap row */
+.heatmap-row {
+  display: flex;
+  height: 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.heatmap-cell {
+  flex: 1;
+  border-right: 1px solid rgba(255,255,255,0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+  cursor: default;
+  position: relative;
+}
+
+.heatmap-cell::after {
+  content: attr(data-pct) '%';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.65);
+}
+
+.hc-ok   { background: rgba(82,196,26,0.35); }
+.hc-warn { background: rgba(250,173,20,0.40); }
+.hc-over { background: rgba(255,77,79,0.45); }
+.hc-empty{ background: rgba(255,255,255,0.02); }
+
+/* Initiatives strip */
+.initiatives-row {
+  flex: 1;
+  position: relative;
+  min-height: 54px;
+}
+
+.init-bar {
+  position: absolute;
+  height: 20px;
+  top: 8px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.1s;
+  z-index: 2;
+}
+
+.init-bar:hover {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
+  z-index: 10;
+}
+
+.init-bar.row-1 { top: 6px; }
+.init-bar.row-2 { top: 30px; }
+
+/* Vertical week grid lines */
+.swimlane-chart::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent calc(100% / 13 - 1px),
+    rgba(255,255,255,0.04) calc(100% / 13 - 1px),
+    rgba(255,255,255,0.04) calc(100% / 13)
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── Right sidebar: initiative list ────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  background: var(--bg-panel);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sidebar-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.sidebar-search {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.sidebar-search:focus { border-color: var(--accent); }
+
+.sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 8px;
+}
+
+.sidebar-list::-webkit-scrollbar { width: 4px; }
+.sidebar-list::-webkit-scrollbar-track { background: transparent; }
+.sidebar-list::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+.init-card {
+  padding: 10px 10px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 4px;
+}
+
+.init-card:hover { background: var(--bg-hover); border-color: var(--border); }
+
+.init-card.active {
+  background: rgba(22,119,255,0.08);
+  border-color: rgba(22,119,255,0.35);
+}
+
+.init-card-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+.init-card-meta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.role-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.init-card-dates {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+.init-card-status {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.status-active { background: rgba(22,119,255,0.15); color: var(--accent); }
+.status-plan   { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+.status-risk   { background: rgba(255,77,79,0.15); color: var(--load-over); }
+
+.drill-btn {
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-body);
+  transition: opacity 0.15s;
+}
+
+.drill-btn:hover { opacity: 0.7; }
+
+/* ─── Drill-down panel ──────────────────────────────────────── */
+.drill-panel {
+  height: 0;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+  overflow: hidden;
+  transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.drill-panel.open {
+  height: var(--drill-h);
+}
+
+.drill-header {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  flex-shrink: 0;
+  background: var(--bg-card);
+}
+
+.drill-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.drill-close:hover { border-color: var(--load-over); color: var(--load-over); }
+
+.drill-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.drill-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.drill-legend {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+  align-items: center;
+}
+
+.dl-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.dl-swatch {
+  width: 20px;
+  height: 5px;
+  border-radius: 2px;
+}
+
+.dl-critical {
+  width: 20px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--load-over);
+  box-shadow: 0 0 6px rgba(255,77,79,0.6);
+}
+
+.drill-body {
+  flex: 1;
+  overflow: hidden;
+}
+
+#drill-gantt-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── DHTMLX Gantt theming override ────────────────────────── */
+
+/* General container */
+.gantt_container {
+  background: var(--bg-panel) !important;
+  border-color: var(--border) !important;
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+}
+
+/* Grid */
+.gantt_grid_data .gantt_cell,
+.gantt_grid_head_cell {
+  background: var(--bg-panel) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.gantt_grid_head_cell {
+  color: var(--text-muted) !important;
+  font-size: 10px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--bg-card) !important;
+}
+
+.gantt_row:hover .gantt_cell { background: var(--bg-hover) !important; }
+.gantt_row.gantt_selected .gantt_cell { background: rgba(22,119,255,0.08) !important; }
+.gantt_row.gantt_selected .gantt_cell { color: var(--text) !important; }
+
+/* Timeline area */
+.gantt_task { background: var(--bg-panel) !important; }
+.gantt_task_row { background: var(--bg-panel) !important; }
+.gantt_task_row.odd { background: var(--bg-card) !important; }
+.gantt_task_row:hover { background: var(--bg-hover) !important; }
+.gantt_task_row.gantt_selected { background: rgba(22,119,255,0.06) !important; }
+
+/* Scale (timeline header) */
+.gantt_scale_cell {
+  background: var(--bg-card) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+  font-size: 10px !important;
+  font-family: var(--font-mono) !important;
+}
+
+.gantt_scale_row { background: var(--bg-card) !important; border-color: var(--border) !important; }
+
+/* Grid column resize */
+.gantt_grid_column_resize_wrap { background: var(--border) !important; }
+
+/* Task bars */
+.gantt_task_line {
+  border-radius: 3px !important;
+  border: none !important;
+}
+
+.gantt_task_line .gantt_task_progress {
+  border-radius: 3px 0 0 3px !important;
+  opacity: 0.6 !important;
+}
+
+.gantt_task_content {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: rgba(0,0,0,0.8) !important;
+  padding: 0 6px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Dependencies */
+.gantt_line_wrapper div { background: #4a6a88 !important; }
+.gantt_link_arrow { border-color: #4a6a88 !important; }
+
+/* Critical path overrides applied via JS */
+
+/* Scrollbar */
+.gantt_ver_scroll,
+.gantt_hor_scroll { background: var(--bg-card) !important; }
+
+/* Weekend columns */
+.gantt_weekend { background: rgba(255,255,255,0.015) !important; }
+
+/* Today marker */
+.gantt_today { background: rgba(22,119,255,0.15) !important; }
+
+/* Tooltip */
+.gantt_tooltip {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+}
+
+/* ─── Grid lines in timeline ────────────────────────────────── */
+.gantt_task_vline { border-color: var(--border) !important; }
+.gantt_task_hline { border-color: var(--border) !important; }
+
+/* ─── Scrollbars global ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
+
+/* ─── Animations ────────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.swimlane {
+  animation: fadeSlideUp 0.3s ease both;
+}
+
+.swimlane:nth-child(1) { animation-delay: 0.05s; }
+.swimlane:nth-child(2) { animation-delay: 0.10s; }
+.swimlane:nth-child(3) { animation-delay: 0.15s; }
+.swimlane:nth-child(4) { animation-delay: 0.20s; }
+
+.init-card {
+  animation: fadeSlideUp 0.25s ease both;
+}
+
+/* ─── Tooltip popup (custom) ────────────────────────────────── */
+.custom-tip {
+  position: fixed;
+  background: var(--bg-card);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 11px;
+  color: var(--text);
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  max-width: 220px;
+  display: none;
+}
+
+.custom-tip-name { font-weight: 600; margin-bottom: 4px; font-size: 12px; }
+.custom-tip-row { display: flex; justify-content: space-between; gap: 16px; color: var(--text-muted); margin-top: 2px; }
+.custom-tip-row b { color: var(--text); }
+
+/* ─── Empty state ───────────────────────────────────────────── */
+.empty-drill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-dim);
+  gap: 8px;
+  font-size: 12px;
+}
+
+.empty-drill svg { opacity: 0.3; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HEADER                                                       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<header class="app-header">
+  <div class="header-logo">RPM<span>·</span>Plan</div>
+  <div class="header-sep"></div>
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="crumb-active">Roadmap</span>
+  </div>
+  <div class="header-spacer"></div>
+
+  <div class="legend-pills">
+    <div class="legend-pill">
+      <div class="legend-dot" style="background:var(--load-ok)"></div>
+      <span>&lt;80%</span>
+    </div>
+    <div class="legend-pill">
+      <div class="legend-dot" style="background:var(--load-warn)"></div>
+      <span>80–100%</span>
+    </div>
+    <div class="legend-pill">
+      <div class="legend-dot" style="background:var(--load-over)"></div>
+      <span>&gt;100%</span>
+    </div>
+    <div class="header-sep"></div>
+    <div class="legend-pill">
+      <div class="legend-dot" style="background:var(--analyst)"></div>
+      <span>Аналитик</span>
+    </div>
+    <div class="legend-pill">
+      <div class="legend-dot" style="background:var(--dev)"></div>
+      <span>Разработчик</span>
+    </div>
+    <div class="legend-pill">
+      <div class="legend-dot" style="background:var(--qa)"></div>
+      <span>QA</span>
+    </div>
+    <div class="legend-pill">
+      <div class="legend-dot" style="background:var(--ope)"></div>
+      <span>ОПЭ</span>
+    </div>
+  </div>
+
+  <div class="header-sep"></div>
+
+  <div class="quarter-switcher">
+    <button class="quarter-btn">Q2 2026</button>
+    <button class="quarter-btn active">Q3 2026</button>
+    <button class="quarter-btn">Q4 2026</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MAIN LAYOUT                                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="main-layout">
+
+  <!-- ─── Roadmap (swimlanes) ─────────────────────────────── -->
+  <div class="roadmap-area" id="roadmapArea">
+
+    <!-- Week column header -->
+    <div class="swimlane-header">
+      <div class="swimlane-header-role">Роль / Команда</div>
+      <div class="week-headers" id="weekHeaders"></div>
+    </div>
+
+    <div class="swimlanes-container" id="swimlanesContainer"></div>
+  </div>
+
+  <!-- ─── Right sidebar ───────────────────────────────────── -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Инициативы · Q3 2026</div>
+      <input class="sidebar-search" type="text" placeholder="Поиск инициативы…" id="searchInput">
+    </div>
+    <div class="sidebar-list" id="sidebarList"></div>
+  </div>
+
+</div>
+
+<!-- ─── Drill-down panel ─────────────────────────────────── -->
+<div class="drill-panel" id="drillPanel">
+  <div class="drill-header">
+    <button class="drill-close" onclick="closeDrill()" title="Закрыть">✕</button>
+    <div class="drill-title" id="drillTitle">—</div>
+    <div class="drill-meta" id="drillMeta"></div>
+    <div class="drill-legend">
+      <div class="dl-item">
+        <div class="dl-swatch" style="background:rgba(105,177,255,0.7)"></div>
+        Анализ
+      </div>
+      <div class="dl-item">
+        <div class="dl-swatch" style="background:rgba(179,127,235,0.7)"></div>
+        Разработка
+      </div>
+      <div class="dl-item">
+        <div class="dl-swatch" style="background:rgba(149,222,100,0.7)"></div>
+        Тестирование
+      </div>
+      <div class="dl-item">
+        <div class="dl-swatch" style="background:rgba(255,169,64,0.7)"></div>
+        ОПЭ
+      </div>
+      <div class="dl-item">
+        <div class="dl-critical"></div>
+        Критический путь
+      </div>
+    </div>
+  </div>
+  <div class="drill-body">
+    <div id="drill-gantt-container"></div>
+  </div>
+</div>
+
+<!-- Custom tooltip -->
+<div class="custom-tip" id="customTip">
+  <div class="custom-tip-name" id="tipName"></div>
+  <div class="custom-tip-row"><span>Период</span><b id="tipPeriod"></b></div>
+  <div class="custom-tip-row"><span>Загрузка</span><b id="tipLoad"></b></div>
+  <div class="custom-tip-row"><span>Часов</span><b id="tipHours"></b></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DATA MODEL
+   ═══════════════════════════════════════════════════════════ */
+
+// Q3 2026: Jul 1 – Sep 30 = 13 weeks (W27–W39)
+const Q3_START = new Date(2026, 6, 1);   // Jul 1
+const Q3_END   = new Date(2026, 8, 30);  // Sep 30
+
+// Generate 13 weeks
+const WEEKS = [];
+for (let i = 0; i < 13; i++) {
+  const d = new Date(Q3_START);
+  d.setDate(d.getDate() + i * 7);
+  const end = new Date(d);
+  end.setDate(end.getDate() + 6);
+  const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  WEEKS.push({
+    index: i,
+    label: `${d.getDate()} ${months[d.getMonth()]}`,
+    month: months[d.getMonth()],
+    num: `${d.getDate()}–${end.getDate()}`,
+    start: new Date(d),
+    end,
+    isoNum: getWeekNumber(d),
+  });
+}
+
+function getWeekNumber(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  const yearStart = new Date(d.getFullYear(), 0, 1);
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+// Today's week index within Q3
+const TODAY = new Date(2026, 6, 14); // simulated: Jul 14 = week 2
+const currentWeekIdx = 2;
+
+// Role definitions
+const ROLES = [
+  { id: 'analyst', label: 'Аналитик', cls: 'analyst', color: '#69b1ff', count: 4, capacity: 640 },
+  { id: 'dev',     label: 'Разработчик', cls: 'dev', color: '#b37feb', count: 8, capacity: 1280 },
+  { id: 'qa',      label: 'Тестировщик', cls: 'qa', color: '#95de64', count: 3, capacity: 480 },
+  { id: 'ope',     label: 'ОПЭ', cls: 'ope', color: '#ffa940', count: 2, capacity: 320 },
+];
+
+// Initiatives (10 items)
+const INITIATIVES = [
+  {
+    id: 'i1',
+    name: 'Реестр сделок v2',
+    status: 'active',
+    weekStart: 0, weekEnd: 6,
+    roles: ['analyst','dev','qa'],
+    color: '#69b1ff',
+    phases: [
+      { name: 'Анализ требований', start: '2026-07-01', end: '2026-07-14', type: 'analyst', progress: 0.9, id: 1, deps: [] },
+      { name: 'Разработка API', start: '2026-07-13', end: '2026-07-31', type: 'dev', progress: 0.6, id: 2, deps: [1] },
+      { name: 'Разработка UI', start: '2026-07-20', end: '2026-08-07', type: 'dev', progress: 0.3, id: 3, deps: [1] },
+      { name: 'Тестирование', start: '2026-08-03', end: '2026-08-14', type: 'qa', progress: 0, id: 4, deps: [2,3] },
+      { name: 'ОПЭ', start: '2026-08-11', end: '2026-08-21', type: 'ope', progress: 0, id: 5, deps: [4] },
+    ],
+    employees: ['Иванов А.П.', 'Смирнова Е.В.', 'Козлов Д.Н.', 'Петрова М.С.', 'Фёдоров О.К.'],
+    critical: [1, 2, 4, 5],
+  },
+  {
+    id: 'i2',
+    name: 'Миграция Bitrix24 API',
+    status: 'risk',
+    weekStart: 1, weekEnd: 9,
+    roles: ['dev','qa'],
+    color: '#b37feb',
+    phases: [
+      { name: 'Аудит текущего API', start: '2026-07-06', end: '2026-07-17', type: 'analyst', progress: 0.8, id: 1, deps: [] },
+      { name: 'Разработка адаптера', start: '2026-07-15', end: '2026-08-14', type: 'dev', progress: 0.4, id: 2, deps: [1] },
+      { name: 'Интеграционные тесты', start: '2026-08-10', end: '2026-08-28', type: 'qa', progress: 0, id: 3, deps: [2] },
+      { name: 'Пилотная нагрузка', start: '2026-08-24', end: '2026-09-04', type: 'ope', progress: 0, id: 4, deps: [3] },
+    ],
+    employees: ['Захаров В.Р.', 'Новикова Т.А.', 'Морозов С.П.', 'Кузнецова И.Г.'],
+    critical: [1, 2, 3, 4],
+  },
+  {
+    id: 'i3',
+    name: 'Дашборд продаж',
+    status: 'plan',
+    weekStart: 3, weekEnd: 10,
+    roles: ['analyst','dev','qa'],
+    color: '#95de64',
+    phases: [
+      { name: 'UX-исследование', start: '2026-07-20', end: '2026-07-31', type: 'analyst', progress: 0.1, id: 1, deps: [] },
+      { name: 'Дизайн и прототип', start: '2026-07-27', end: '2026-08-07', type: 'analyst', progress: 0, id: 2, deps: [1] },
+      { name: 'Бэкенд аналитики', start: '2026-08-03', end: '2026-08-28', type: 'dev', progress: 0, id: 3, deps: [1] },
+      { name: 'Фронтенд дашборда', start: '2026-08-10', end: '2026-09-04', type: 'dev', progress: 0, id: 4, deps: [2] },
+      { name: 'QA + UAT', start: '2026-08-31', end: '2026-09-11', type: 'qa', progress: 0, id: 5, deps: [3,4] },
+    ],
+    employees: ['Волкова Н.С.', 'Лебедев Р.О.', 'Соколова Д.В.', 'Попов М.Е.', 'Артемьева К.Ю.'],
+    critical: [1, 3, 5],
+  },
+  {
+    id: 'i4',
+    name: 'Интеграция с 1С',
+    status: 'active',
+    weekStart: 0, weekEnd: 11,
+    roles: ['analyst','dev'],
+    color: '#ffa940',
+    phases: [
+      { name: 'Спецификация обмена', start: '2026-07-01', end: '2026-07-10', type: 'analyst', progress: 1.0, id: 1, deps: [] },
+      { name: 'Разработка коннектора', start: '2026-07-08', end: '2026-08-21', type: 'dev', progress: 0.5, id: 2, deps: [1] },
+      { name: 'Тестирование обмена', start: '2026-08-17', end: '2026-09-04', type: 'qa', progress: 0, id: 3, deps: [2] },
+      { name: 'Продовый запуск', start: '2026-09-01', end: '2026-09-11', type: 'ope', progress: 0, id: 4, deps: [3] },
+    ],
+    employees: ['Егоров Д.А.', 'Орлова Ю.В.', 'Макаров Н.П.', 'Белова С.Е.'],
+    critical: [1, 2, 3, 4],
+  },
+  {
+    id: 'i5',
+    name: 'Портал поставщиков',
+    status: 'plan',
+    weekStart: 5, weekEnd: 12,
+    roles: ['analyst','dev','qa','ope'],
+    color: '#ff85c2',
+    phases: [
+      { name: 'Анализ процессов', start: '2026-08-03', end: '2026-08-14', type: 'analyst', progress: 0, id: 1, deps: [] },
+      { name: 'Разработка портала', start: '2026-08-12', end: '2026-09-11', type: 'dev', progress: 0, id: 2, deps: [1] },
+      { name: 'Тестирование', start: '2026-09-07', end: '2026-09-21', type: 'qa', progress: 0, id: 3, deps: [2] },
+      { name: 'ОПЭ', start: '2026-09-18', end: '2026-09-30', type: 'ope', progress: 0, id: 4, deps: [3] },
+    ],
+    employees: ['Тихонов В.А.', 'Романова О.Н.', 'Зайцев М.В.', 'Никитина Е.П.', 'Павлов С.И.'],
+    critical: [1, 2, 3, 4],
+  },
+  {
+    id: 'i6',
+    name: 'Автоматизация KYC',
+    status: 'risk',
+    weekStart: 2, weekEnd: 8,
+    roles: ['analyst','dev','qa'],
+    color: '#ff7875',
+    phases: [
+      { name: 'Регуляторный анализ', start: '2026-07-13', end: '2026-07-24', type: 'analyst', progress: 0.5, id: 1, deps: [] },
+      { name: 'ML-модель проверки', start: '2026-07-22', end: '2026-08-21', type: 'dev', progress: 0.2, id: 2, deps: [1] },
+      { name: 'Тестирование ML', start: '2026-08-17', end: '2026-09-04', type: 'qa', progress: 0, id: 3, deps: [2] },
+    ],
+    employees: ['Семёнов К.Л.', 'Александрова В.Ю.', 'Громов Р.А.', 'Котова Д.С.'],
+    critical: [1, 2, 3],
+  },
+  {
+    id: 'i7',
+    name: 'Мобильное приложение',
+    status: 'plan',
+    weekStart: 4, weekEnd: 12,
+    roles: ['analyst','dev','qa'],
+    color: '#36cfc9',
+    phases: [
+      { name: 'Продуктовый анализ', start: '2026-07-27', end: '2026-08-07', type: 'analyst', progress: 0, id: 1, deps: [] },
+      { name: 'iOS / Android', start: '2026-08-05', end: '2026-09-18', type: 'dev', progress: 0, id: 2, deps: [1] },
+      { name: 'QA мобайл', start: '2026-09-14', end: '2026-09-28', type: 'qa', progress: 0, id: 3, deps: [2] },
+    ],
+    employees: ['Дмитриев А.О.', 'Соловьёв Г.Е.', 'Мартынова Н.В.', 'Киселев П.А.'],
+    critical: [1, 2, 3],
+  },
+  {
+    id: 'i8',
+    name: 'Рефакторинг авторизации',
+    status: 'active',
+    weekStart: 0, weekEnd: 4,
+    roles: ['dev','qa'],
+    color: '#b37feb',
+    phases: [
+      { name: 'Аудит кода', start: '2026-07-01', end: '2026-07-07', type: 'analyst', progress: 1.0, id: 1, deps: [] },
+      { name: 'Рефакторинг', start: '2026-07-06', end: '2026-07-25', type: 'dev', progress: 0.7, id: 2, deps: [1] },
+      { name: 'Регрессия', start: '2026-07-23', end: '2026-08-01', type: 'qa', progress: 0, id: 3, deps: [2] },
+    ],
+    employees: ['Андреев В.С.', 'Степанова Е.А.', 'Шевченко И.Н.'],
+    critical: [1, 2, 3],
+  },
+  {
+    id: 'i9',
+    name: 'Витрина данных EDW',
+    status: 'plan',
+    weekStart: 6, weekEnd: 12,
+    roles: ['analyst','dev'],
+    color: '#69b1ff',
+    phases: [
+      { name: 'Проектирование DWH', start: '2026-08-10', end: '2026-08-21', type: 'analyst', progress: 0, id: 1, deps: [] },
+      { name: 'ETL-пайплайны', start: '2026-08-19', end: '2026-09-18', type: 'dev', progress: 0, id: 2, deps: [1] },
+      { name: 'Валидация данных', start: '2026-09-14', end: '2026-09-28', type: 'qa', progress: 0, id: 3, deps: [2] },
+    ],
+    employees: ['Кириллов М.А.', 'Герасимова О.Р.', 'Беляев Д.Т.'],
+    critical: [1, 2, 3],
+  },
+  {
+    id: 'i10',
+    name: 'API-шлюз v3',
+    status: 'risk',
+    weekStart: 1, weekEnd: 7,
+    roles: ['dev','qa','ope'],
+    color: '#ffa940',
+    phases: [
+      { name: 'Архитектура шлюза', start: '2026-07-06', end: '2026-07-17', type: 'analyst', progress: 0.6, id: 1, deps: [] },
+      { name: 'Разработка шлюза', start: '2026-07-15', end: '2026-08-14', type: 'dev', progress: 0.3, id: 2, deps: [1] },
+      { name: 'Нагрузочные тесты', start: '2026-08-10', end: '2026-08-28', type: 'qa', progress: 0, id: 3, deps: [2] },
+      { name: 'Боевая эксплуатация', start: '2026-08-24', end: '2026-09-04', type: 'ope', progress: 0, id: 4, deps: [3] },
+    ],
+    employees: ['Сидоров П.Н.', 'Крылова А.М.', 'Давыдов О.Ф.', 'Борисова Н.Г.'],
+    critical: [2, 3, 4],
+  },
+];
+
+// Heatmap data per role per week (% loading)
+const HEATMAP = {
+  analyst: [72, 85, 110, 95, 88, 105, 92, 78, 65, 72, 80, 75, 68],
+  dev:     [88, 115, 108, 95, 102, 98, 85, 90, 88, 72, 68, 75, 65],
+  qa:      [45, 50, 60, 78, 92, 115, 108, 95, 88, 72, 65, 58, 52],
+  ope:     [30, 35, 42, 50, 65, 72, 88, 102, 108, 95, 78, 65, 55],
+};
+
+// Initiatives displayed per role
+const ROLE_INITIATIVES = {
+  analyst: ['i1','i3','i4','i6','i9'],
+  dev:     ['i1','i2','i4','i7','i8','i10'],
+  qa:      ['i2','i3','i6','i8','i10'],
+  ope:     ['i4','i5','i10'],
+};
+
+// Phase color by type
+const PHASE_COLORS = {
+  analyst: 'rgba(105,177,255,0.75)',
+  dev:     'rgba(179,127,235,0.75)',
+  qa:      'rgba(149,222,100,0.75)',
+  ope:     'rgba(255,169,64,0.75)',
+};
+
+const PHASE_COLORS_SOLID = {
+  analyst: '#69b1ff',
+  dev:     '#b37feb',
+  qa:      '#95de64',
+  ope:     '#ffa940',
+};
+
+/* ═══════════════════════════════════════════════════════════
+   WEEK HEADER
+   ═══════════════════════════════════════════════════════════ */
+function buildWeekHeaders() {
+  const container = document.getElementById('weekHeaders');
+  WEEKS.forEach((w, i) => {
+    const el = document.createElement('div');
+    el.className = 'week-col' + (i === currentWeekIdx ? ' current-week' : '');
+    el.innerHTML = `<div class="wc-month">${w.month}</div><div class="wc-num">${w.num}</div>`;
+    container.appendChild(el);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SWIMLANES
+   ═══════════════════════════════════════════════════════════ */
+function pctClass(pct) {
+  if (pct > 100) return 'hc-over';
+  if (pct >= 80)  return 'hc-warn';
+  if (pct > 0)    return 'hc-ok';
+  return 'hc-empty';
+}
+
+function buildSwimlanes() {
+  const container = document.getElementById('swimlanesContainer');
+
+  ROLES.forEach(role => {
+    const lane = document.createElement('div');
+    lane.className = 'swimlane';
+
+    // Role column
+    const roleCol = document.createElement('div');
+    roleCol.className = 'swimlane-role-col';
+    roleCol.innerHTML = `
+      <div class="role-badge ${role.cls}">${role.label}</div>
+      <div class="role-meta">
+        <b>${role.count}</b> чел · <b>${role.capacity}</b> ч/кв
+      </div>
+    `;
+    lane.appendChild(roleCol);
+
+    // Chart area
+    const chart = document.createElement('div');
+    chart.className = 'swimlane-chart';
+
+    // Heatmap row
+    const heatRow = document.createElement('div');
+    heatRow.className = 'heatmap-row';
+    WEEKS.forEach((w, i) => {
+      const pct = HEATMAP[role.id][i];
+      const cell = document.createElement('div');
+      cell.className = 'heatmap-cell ' + pctClass(pct);
+      cell.setAttribute('data-pct', pct);
+      cell.title = `Нед ${i+1}: ${pct}%`;
+      heatRow.appendChild(cell);
+    });
+    chart.appendChild(heatRow);
+
+    // Initiatives row
+    const initRow = document.createElement('div');
+    initRow.className = 'initiatives-row';
+
+    const roleInits = (ROLE_INITIATIVES[role.id] || [])
+      .map(id => INITIATIVES.find(x => x.id === id))
+      .filter(Boolean);
+
+    // Layout into rows to avoid overlap
+    const layoutRows = [];
+    roleInits.forEach(init => {
+      let placed = false;
+      for (let r = 0; r < layoutRows.length; r++) {
+        const row = layoutRows[r];
+        const last = row[row.length - 1];
+        if (last.weekEnd < init.weekStart) {
+          row.push(init);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) layoutRows.push([init]);
+    });
+
+    layoutRows.forEach((rowInits, rowIdx) => {
+      rowInits.forEach(init => {
+        const bar = document.createElement('div');
+        bar.className = `init-bar row-${rowIdx + 1}`;
+        bar.style.left = `${(init.weekStart / 13) * 100}%`;
+        bar.style.width = `${((init.weekEnd - init.weekStart + 1) / 13) * 100}%`;
+        bar.style.background = init.color + 'cc';
+        bar.style.color = '#141414';
+        bar.style.top = rowIdx === 0 ? '6px' : '30px';
+        bar.textContent = init.name;
+        bar.title = init.name;
+
+        bar.addEventListener('click', () => openDrill(init.id));
+        bar.addEventListener('mousemove', (e) => showTip(e, init));
+        bar.addEventListener('mouseleave', hideTip);
+
+        initRow.appendChild(bar);
+      });
+    });
+
+    chart.appendChild(initRow);
+    lane.appendChild(chart);
+    container.appendChild(lane);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════════════════════ */
+function buildSidebar() {
+  renderSidebarCards(INITIATIVES);
+
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    const filtered = INITIATIVES.filter(i => i.name.toLowerCase().includes(q));
+    renderSidebarCards(filtered);
+  });
+}
+
+function renderSidebarCards(inits) {
+  const list = document.getElementById('sidebarList');
+  list.innerHTML = '';
+
+  const statusLabel = { active: 'В работе', plan: 'Плановая', risk: 'Под риском' };
+  const statusCls   = { active: 'status-active', plan: 'status-plan', risk: 'status-risk' };
+
+  inits.forEach((init, idx) => {
+    const card = document.createElement('div');
+    card.className = 'init-card';
+    card.id = `card-${init.id}`;
+    card.style.animationDelay = `${idx * 0.04}s`;
+
+    const startWeek = WEEKS[init.weekStart];
+    const endWeek   = WEEKS[Math.min(init.weekEnd, 12)];
+    const dateRange = `${startWeek.label} – ${endWeek.label}`;
+
+    const roleDots = [...new Set(init.roles)].map(r => {
+      const role = ROLES.find(x => x.id === r);
+      return `<div class="role-dot" style="background:${role.color}" title="${role.label}"></div>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="init-card-name">${init.name}</div>
+      <div class="init-card-meta">
+        ${roleDots}
+        <div class="init-card-dates">${dateRange}</div>
+        <div class="init-card-status ${statusCls[init.status]}">${statusLabel[init.status]}</div>
+      </div>
+      <button class="drill-btn" onclick="openDrill('${init.id}')">Детали ›</button>
+    `;
+
+    card.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      openDrill(init.id);
+    });
+
+    list.appendChild(card);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOOLTIP
+   ═══════════════════════════════════════════════════════════ */
+function showTip(e, init) {
+  const tip = document.getElementById('customTip');
+  const startWeek = WEEKS[init.weekStart];
+  const endWeek   = WEEKS[Math.min(init.weekEnd, 12)];
+
+  document.getElementById('tipName').textContent = init.name;
+  document.getElementById('tipPeriod').textContent = `${startWeek.label} – ${endWeek.label}`;
+  document.getElementById('tipLoad').textContent = init.status === 'risk' ? '⚠ Перегруз ролей' : 'В норме';
+  document.getElementById('tipHours').textContent = `~${(init.weekEnd - init.weekStart + 1) * 40} ч`;
+
+  tip.style.display = 'block';
+  tip.style.left = (e.clientX + 12) + 'px';
+  tip.style.top  = (e.clientY - 30) + 'px';
+}
+
+function hideTip() {
+  document.getElementById('customTip').style.display = 'none';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DRILL-DOWN GANTT
+   ═══════════════════════════════════════════════════════════ */
+let drillGanttInit = false;
+let currentInitId  = null;
+
+function openDrill(id) {
+  const init = INITIATIVES.find(x => x.id === id);
+  if (!init) return;
+
+  currentInitId = id;
+
+  // Update header
+  document.getElementById('drillTitle').textContent = init.name;
+
+  const startWeek = WEEKS[init.weekStart];
+  const endWeek   = WEEKS[Math.min(init.weekEnd, 12)];
+  document.getElementById('drillMeta').textContent =
+    `${startWeek.label} – ${endWeek.label} · ${init.employees.length} сотрудников`;
+
+  // Breadcrumb
+  document.getElementById('breadcrumb').innerHTML = `
+    <span onclick="closeDrill()" style="cursor:pointer;color:var(--text-muted);">Roadmap</span>
+    <span class="crumb-sep">›</span>
+    <span class="crumb-active">${init.name}</span>
+  `;
+
+  // Highlight card
+  document.querySelectorAll('.init-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById(`card-${id}`);
+  if (card) {
+    card.classList.add('active');
+    card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  // Open panel
+  const panel = document.getElementById('drillPanel');
+  panel.classList.add('open');
+
+  // Init or reload Gantt
+  setTimeout(() => loadDrillGantt(init), drillGanttInit ? 50 : 100);
+}
+
+function closeDrill() {
+  document.getElementById('drillPanel').classList.remove('open');
+  document.getElementById('breadcrumb').innerHTML =
+    `<span class="crumb-active">Roadmap</span>`;
+  document.querySelectorAll('.init-card').forEach(c => c.classList.remove('active'));
+  currentInitId = null;
+}
+
+function loadDrillGantt(init) {
+  // Set DHTMLX locale to Russian (must be before init)
+  gantt.i18n.setLocale({
+    date: {
+      month_full: ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                   'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+      month_short: ['Янв','Фев','Мар','Апр','Май','Июн',
+                    'Июл','Авг','Сен','Окт','Ноя','Дек'],
+      day_full: ['Воскресенье','Понедельник','Вторник','Среда',
+                 'Четверг','Пятница','Суббота'],
+      day_short: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+    },
+    labels: {
+      new_task: 'Новая задача',
+      icon_save: 'Сохранить',
+      icon_cancel: 'Отмена',
+      icon_details: 'Детали',
+      icon_edit: 'Редактировать',
+      icon_delete: 'Удалить',
+      confirm_closing: '',
+      confirm_deleting: 'Задача будет удалена безвозвратно',
+      section_description: 'Описание',
+      section_time: 'Период',
+      section_type: 'Тип',
+      column_text: 'Задача',
+      column_start_date: 'Начало',
+      column_duration: 'Дней',
+      column_add: '',
+    }
+  });
+
+  // Date range for this initiative
+  const phases = init.phases;
+  const earliest = phases.reduce((m, p) => p.start < m ? p.start : m, phases[0].start);
+  const latest   = phases.reduce((m, p) => p.end   > m ? p.end   : m, phases[0].end);
+  const dStart = parseDate(earliest);
+  dStart.setDate(dStart.getDate() - 3);
+  const dEnd = parseDate(latest);
+  dEnd.setDate(dEnd.getDate() + 7);
+
+  if (!drillGanttInit) {
+    // ── First-time init: configure everything before gantt.init() ──
+
+    gantt.config.readonly      = true;
+    gantt.config.drag_links    = false;
+    gantt.config.drag_move     = false;
+    gantt.config.drag_resize   = false;
+    gantt.config.scale_height  = 46;
+    gantt.config.row_height    = 28;
+    gantt.config.bar_height    = 18;
+    gantt.config.link_arrow_size = 6;
+    gantt.config.date_format   = '%d-%m-%Y';
+
+    gantt.config.layout = {
+      css: 'gantt_container',
+      rows: [
+        {
+          cols: [
+            { view: 'grid', id: 'grid', width: 260, scrollX: 'scrollHor', scrollY: 'scrollVer' },
+            { resizer: true, width: 1 },
+            { view: 'timeline', id: 'timeline', scrollX: 'scrollHor', scrollY: 'scrollVer' },
+            { view: 'scrollbar', id: 'scrollVer', group: 'vertical' },
+          ],
+        },
+        { view: 'scrollbar', id: 'scrollHor', group: 'horizontal' },
+      ],
+    };
+
+    gantt.config.columns = [
+      {
+        name: 'text',
+        label: 'Фаза',
+        width: 210,
+        tree: true,
+        template: (task) => {
+          if (task.isMilestone)
+            return `<span style="color:#ff4d4f;font-weight:600">◆ ${task.text}</span>`;
+          return task.text;
+        }
+      },
+      {
+        name: 'duration',
+        label: 'Дн',
+        width: 38,
+        align: 'center',
+        template: (task) => task.type === gantt.config.types.milestone ? '' : task.duration,
+      },
+    ];
+
+    gantt.config.scales = [
+      { unit: 'month', step: 1, format: '%F %Y' },
+      { unit: 'week',  step: 1, format: (date) =>
+        date.getDate() + ' ' +
+        ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'][date.getMonth()]
+      },
+    ];
+
+    // Templates set once
+    gantt.templates.task_class = (start, end, task) =>
+      task.isCritical ? 'gantt-critical' : '';
+
+    gantt.templates.task_text = (start, end, task) =>
+      task.type === gantt.config.types.milestone ? '' : task.text;
+
+    gantt.templates.tooltip_text = (start, end, task) => {
+      if (task.type === gantt.config.types.milestone) return `<b>${task.text}</b>`;
+      const role = ROLES.find(r => r.id === task.phaseType);
+      return `<b>${task.text}</b><br>` +
+             `Роль: ${role ? role.label : '—'}<br>` +
+             `${gantt.templates.tooltip_date_format(start)} – ` +
+             `${gantt.templates.tooltip_date_format(end)}<br>` +
+             `Прогресс: ${Math.round((task.progress||0)*100)}%`;
+    };
+
+    gantt.templates.scale_cell_class = (date) =>
+      (date.getDay() === 0 || date.getDay() === 6) ? 'gantt_weekend' : '';
+
+    // Inject critical path styles once
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      .gantt-critical.gantt_task_line {
+        border: 2px solid #ff4d4f !important;
+        box-shadow: 0 0 8px rgba(255,77,79,0.5) !important;
+      }
+      .gantt-critical .gantt_task_content {
+        color: #fff !important;
+        font-weight: 700 !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+
+    gantt.config.start_date = dStart;
+    gantt.config.end_date   = dEnd;
+
+    gantt.init('drill-gantt-container');
+    drillGanttInit = true;
+  } else {
+    // Subsequent opens: update date range and reload
+    gantt.config.start_date = dStart;
+    gantt.config.end_date   = dEnd;
+    gantt.clearAll();
+    gantt.render();
+  }
+
+  // Build task & link arrays
+  const tasks = [];
+  const links = [];
+  const idOffset = 100;
+
+  init.phases.forEach((phase) => {
+    const ganttId = idOffset + phase.id;
+    const isCrit  = init.critical.includes(phase.id);
+    const bg      = isCrit ? 'rgba(255,77,79,0.85)' : PHASE_COLORS[phase.phaseType || phase.type];
+
+    tasks.push({
+      id:         ganttId,
+      text:       phase.name,
+      start_date: formatGanttDate(parseDate(phase.start)),
+      end_date:   formatGanttDate(addDay(parseDate(phase.end), 1)),
+      progress:   phase.progress || 0,
+      phaseType:  phase.type,
+      isCritical: isCrit,
+      color:      bg,
+      textColor:  isCrit ? '#fff' : '#141414',
+    });
+
+    (phase.deps || []).forEach(depId => {
+      links.push({
+        id:     links.length + 1,
+        source: idOffset + depId,
+        target: ganttId,
+        type:   '0',
+      });
+    });
+  });
+
+  // Milestone at end of last critical phase
+  const lastCritPhase = [...init.phases]
+    .filter(p => init.critical.includes(p.id))
+    .sort((a,b) => b.end.localeCompare(a.end))[0];
+
+  if (lastCritPhase) {
+    const msDate = parseDate(lastCritPhase.end);
+    msDate.setDate(msDate.getDate() + 1);
+    tasks.push({
+      id:         999,
+      text:       'Завершение',
+      start_date: formatGanttDate(msDate),
+      end_date:   formatGanttDate(addDay(msDate, 1)),
+      type:       gantt.config.types.milestone,
+      isMilestone: true,
+      color:      '#ff4d4f',
+    });
+    links.push({
+      id:     links.length + 1,
+      source: idOffset + lastCritPhase.id,
+      target: 999,
+      type:   '0',
+    });
+  }
+
+  gantt.parse({ data: tasks, links });
+}
+
+function parseDate(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function addDay(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function formatGanttDate(date) {
+  const d  = String(date.getDate()).padStart(2, '0');
+  const m  = String(date.getMonth() + 1).padStart(2, '0');
+  const y  = date.getFullYear();
+  return `${d}-${m}-${y}`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  buildWeekHeaders();
+  buildSwimlanes();
+  buildSidebar();
+
+  // Quarter buttons (cosmetic)
+  document.querySelectorAll('.quarter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.quarter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+});
+</script>
+</body>
+</html>
