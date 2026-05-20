@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Планирование ресурсов · Worklenz-style</title>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base:       #141414;
+  --bg-panel:      #1f1f1f;
+  --bg-elevated:   #262626;
+  --bg-hover:      #2a2a2a;
+  --border:        #303030;
+  --border-subtle: #1f1f1f;
+  --text-primary:  #e6e6e6;
+  --text-secondary:#8c8c8c;
+  --text-muted:    #595959;
+  --accent:        #1677ff;
+  --accent-hover:  #4096ff;
+  --accent-dim:    rgba(22,119,255,0.12);
+
+  /* Role colours */
+  --analyst:  #69b1ff;
+  --dev:      #b37feb;
+  --qa:       #95de64;
+  --ope:      #ffa940;
+
+  /* Initiative palette */
+  --init-1: #1677ff;
+  --init-2: #722ed1;
+  --init-3: #13c2c2;
+  --init-4: #eb2f96;
+  --init-5: #fa8c16;
+  --init-6: #52c41a;
+  --init-7: #fadb14;
+  --init-8: #f5222d;
+  --init-9: #2f54eb;
+  --init-10:#08979c;
+
+  --danger:  #ff4d4f;
+  --warning: #fa8c16;
+  --ok:      #52c41a;
+
+  --row-h: 52px;
+  --header-h: 56px;
+  --cell-w: 50px;
+  --left-col-w: 320px;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+body { display: flex; flex-direction: column; }
+
+/* ===== HEADER ===== */
+.app-header {
+  height: var(--header-h);
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  flex-shrink: 0;
+  z-index: 200;
+}
+
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.logo-icon {
+  width: 30px; height: 30px;
+  background: var(--accent);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.logo-text {
+  font-size: 14px; font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.logo-sub {
+  font-size: 11px; color: var(--text-secondary);
+  font-weight: 400; margin-left: 4px;
+}
+
+.header-divider {
+  width: 1px; height: 28px;
+  background: var(--border); flex-shrink: 0;
+}
+
+.header-controls {
+  display: flex; align-items: center; gap: 8px; flex: 1;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 12px; font-weight: 500;
+  cursor: default;
+  white-space: nowrap;
+  user-select: none;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.btn--active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn--primary:hover { background: var(--accent-hover); }
+
+.toggle-group {
+  display: flex; align-items: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+}
+.toggle-btn {
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px; font-weight: 500;
+  cursor: default;
+}
+.toggle-btn.active { background: var(--accent); color: #fff; }
+
+.select-ctrl {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 5px 10px;
+  cursor: default;
+  outline: none;
+  font-family: inherit;
+}
+
+.header-stats {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 16px;
+  font-size: 12px; color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.header-stats span { white-space: nowrap; }
+.stat-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.app-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ===== SCHEDULER WRAPPER ===== */
+.scheduler {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== SCHEDULER HEADER ROW (sticky top) ===== */
+.sched-head {
+  display: flex;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  position: sticky; top: 0;
+}
+
+.sched-head-left {
+  width: var(--left-col-w);
+  min-width: var(--left-col-w);
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex; align-items: flex-end;
+  height: 56px;
+  font-size: 11px; font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.sched-head-timeline {
+  flex: 1;
+  overflow: hidden;
+}
+
+.week-row {
+  display: flex;
+  height: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.week-cell {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.day-row {
+  display: flex;
+  height: 32px;
+}
+.day-cell {
+  width: var(--cell-w);
+  min-width: var(--cell-w);
+  flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border-right: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+.day-cell.today {
+  color: var(--accent);
+  font-weight: 700;
+}
+.day-cell .day-num { font-size: 12px; font-weight: 600; }
+.day-cell .day-name { font-size: 10px; color: var(--text-muted); }
+.day-cell.today .day-name { color: rgba(22,119,255,0.7); }
+
+/* ===== SCROLL AREA ===== */
+.sched-scroll {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+/* ===== ROWS ===== */
+.sched-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.sched-row {
+  display: flex;
+  height: var(--row-h);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.sched-row:hover .row-left { background: var(--bg-hover); }
+.sched-row:hover .row-cells { background: rgba(255,255,255,0.01); }
+
+/* ===== LEFT COLUMN ===== */
+.row-left {
+  width: var(--left-col-w);
+  min-width: var(--left-col-w);
+  flex-shrink: 0;
+  display: flex; align-items: center;
+  padding: 0 12px;
+  gap: 10px;
+  border-right: 1px solid var(--border);
+  background: var(--bg-panel);
+  position: sticky; left: 0; z-index: 10;
+}
+
+.avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+  color: #141414;
+}
+.avatar--analyst { background: var(--analyst); }
+.avatar--dev     { background: var(--dev); color: #fff; }
+.avatar--qa      { background: var(--qa); }
+.avatar--ope     { background: var(--ope); }
+
+.employee-info { flex: 1; min-width: 0; }
+.employee-name {
+  font-size: 12px; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+.role-badge {
+  display: inline-block;
+  font-size: 10px; font-weight: 600;
+  padding: 1px 6px; border-radius: 4px;
+  margin-top: 1px;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.role-badge--analyst { background: rgba(105,177,255,0.15); color: var(--analyst); }
+.role-badge--dev     { background: rgba(179,127,235,0.15); color: var(--dev); }
+.role-badge--qa      { background: rgba(149,222,100,0.15); color: var(--qa); }
+.role-badge--ope     { background: rgba(255,169,64,0.15);  color: var(--ope); }
+
+.load-bar-wrap {
+  width: 44px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+}
+.load-pct {
+  font-size: 11px; font-weight: 600; line-height: 1;
+}
+.load-pct.ok     { color: var(--ok); }
+.load-pct.warn   { color: var(--warning); }
+.load-pct.danger { color: var(--danger); }
+.load-bar {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: var(--bg-elevated);
+  position: relative; overflow: visible;
+}
+.load-bar-fill {
+  height: 100%; border-radius: 2px; max-width: 100%;
+  transition: width 0.2s;
+}
+.load-bar-fill.ok     { background: var(--ok); }
+.load-bar-fill.warn   { background: var(--warning); }
+.load-bar-fill.danger { background: var(--danger); }
+
+/* ===== TIMELINE CELLS ===== */
+.row-cells {
+  display: flex;
+  position: relative;
+}
+
+.day-col {
+  width: var(--cell-w);
+  min-width: var(--cell-w);
+  flex-shrink: 0;
+  height: var(--row-h);
+  border-right: 1px solid var(--border);
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.day-col.today-col {
+  background: rgba(22,119,255,0.04);
+}
+.day-col.overload {
+  background: rgba(255,77,79,0.12);
+}
+.day-col.warn-load {
+  background: rgba(250,140,22,0.1);
+}
+
+/* load hours badge in cell */
+.cell-hours {
+  font-size: 10px; font-weight: 600;
+  color: var(--text-muted);
+  position: absolute; bottom: 3px; right: 4px;
+  pointer-events: none; z-index: 1;
+}
+.day-col.overload .cell-hours { color: var(--danger); }
+.day-col.warn-load .cell-hours { color: var(--warning); }
+
+/* ===== PROJECT BARS ===== */
+.proj-bar {
+  position: absolute;
+  height: 16px;
+  border-radius: 4px;
+  display: flex; align-items: center;
+  padding: 0 6px;
+  font-size: 10px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: #fff;
+  z-index: 5;
+  opacity: 0.92;
+  cursor: default;
+  transition: opacity 0.15s;
+}
+.proj-bar:hover { opacity: 1; z-index: 20; }
+
+/* ===== TODAY LINE ===== */
+.today-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  z-index: 50;
+  pointer-events: none;
+}
+.today-line::before {
+  content: '';
+  position: absolute;
+  top: -4px; left: -4px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ===== POPOVER ===== */
+.popover {
+  position: absolute;
+  z-index: 300;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  min-width: 220px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+.popover-arrow {
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 8px solid var(--border);
+}
+.popover-arrow::after {
+  content: '';
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--bg-elevated);
+  top: -9px; left: -6px;
+}
+.popover-title {
+  font-size: 12px; font-weight: 600;
+  color: var(--text-primary); margin-bottom: 2px;
+}
+.popover-sub {
+  font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;
+}
+.popover-load {
+  font-size: 12px; font-weight: 600;
+  color: var(--danger);
+  margin-bottom: 8px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.popover-list { list-style: none; }
+.popover-list li {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-primary);
+  padding: 2px 0;
+}
+.popover-dot {
+  width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+}
+.popover-hours { margin-left: auto; color: var(--text-secondary); font-weight: 600; }
+
+/* ===== FOOTER ===== */
+.app-footer {
+  height: 32px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 24px;
+  flex-shrink: 0;
+  font-size: 12px; color: var(--text-secondary);
+}
+.footer-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.footer-badge .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="app-header">
+  <div class="logo">
+    <div class="logo-icon">📋</div>
+    <div>
+      <span class="logo-text">Планирование ресурсов</span>
+      <span class="logo-sub">· Worklenz-style</span>
+    </div>
+  </div>
+
+  <div class="header-divider"></div>
+
+  <div class="header-controls">
+    <button class="btn btn--primary">Сегодня</button>
+
+    <button class="btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Май 2026
+    </button>
+
+    <div class="toggle-group">
+      <button class="toggle-btn active">Неделя</button>
+      <button class="toggle-btn">Месяц</button>
+    </div>
+
+    <div class="header-divider"></div>
+
+    <select class="select-ctrl">
+      <option>Team Alpha</option>
+      <option>Team Beta</option>
+      <option>Все команды</option>
+    </select>
+  </div>
+
+  <div class="header-stats">
+    <span><span class="stat-dot" style="background:var(--accent)"></span>12 сотрудников</span>
+    <span><span class="stat-dot" style="background:var(--init-1)"></span>6 инициатив</span>
+    <span><span class="stat-dot" style="background:var(--ok)"></span>4 недели</span>
+  </div>
+</header>
+
+<!-- ===== MAIN ===== -->
+<div class="app-body">
+<div class="scheduler" id="scheduler">
+
+  <!-- HEADER ROW -->
+  <div class="sched-head" id="schedHead">
+    <div class="sched-head-left">Сотрудник</div>
+    <div class="sched-head-timeline" id="timelineHead"></div>
+  </div>
+
+  <!-- SCROLL AREA -->
+  <div class="sched-scroll" id="schedScroll">
+    <div class="sched-rows" id="schedRows"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="app-footer">
+  <span class="footer-badge">
+    <span class="dot" style="background:var(--danger)"></span>
+    Конфликты: 3
+  </span>
+  <span class="footer-badge">
+    <span class="dot" style="background:var(--ok)"></span>
+    Свободно: 14%
+  </span>
+  <span class="footer-badge">
+    <span class="dot" style="background:var(--accent)"></span>
+    Утилизация: 89%
+  </span>
+</footer>
+
+<script>
+// ===== DATA =====
+const CELL_W = 50;
+const ROW_H  = 52;
+
+// Working days: Mon 11 May – Fri 5 Jun 2026 (skip Sat/Sun)
+const days = [];
+const start = new Date(2026, 4, 11); // May 11
+for (let d = new Date(start); days.length < 20; d.setDate(d.getDate() + 1)) {
+  const dow = d.getDay();
+  if (dow !== 0 && dow !== 6) {
+    days.push(new Date(d));
+  }
+}
+
+const dayNames = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const monthNames = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+// Week labels
+const weeks = [
+  { label: 'W19', span: 5 },
+  { label: 'W20', span: 5 },
+  { label: 'W21', span: 5 },
+  { label: 'W22', span: 5 },
+];
+
+// Employees
+const employees = [
+  { id:1,  name:'Иванов А.П.',   initials:'ИА', role:'analyst', roleLabel:'Аналитик',   load:95  },
+  { id:2,  name:'Петров В.С.',   initials:'ПВ', role:'analyst', roleLabel:'Аналитик',   load:110 },
+  { id:3,  name:'Сидорова М.И.', initials:'СМ', role:'dev',     roleLabel:'Разработчик', load:80 },
+  { id:4,  name:'Козлов Д.А.',   initials:'КД', role:'dev',     roleLabel:'Разработчик', load:130 },
+  { id:5,  name:'Морозова Е.К.', initials:'МЕ', role:'dev',     roleLabel:'Разработчик', load:70 },
+  { id:6,  name:'Новиков И.Л.',  initials:'НИ', role:'qa',      roleLabel:'QA',          load:90 },
+  { id:7,  name:'Волкова Т.Р.',  initials:'ВТ', role:'qa',      roleLabel:'QA',          load:60 },
+  { id:8,  name:'Соколов П.Н.',  initials:'СП', role:'ope',     roleLabel:'ОПЭ',         load:100 },
+  { id:9,  name:'Лебедев К.В.',  initials:'ЛК', role:'dev',     roleLabel:'Разработчик', load:85 },
+  { id:10, name:'Кузнецова О.С.',initials:'КО', role:'analyst', roleLabel:'Аналитик',   load:75  },
+  { id:11, name:'Попов А.М.',    initials:'ПА', role:'qa',      roleLabel:'QA',          load:50 },
+  { id:12, name:'Васильев Р.Д.', initials:'ВР', role:'dev',     roleLabel:'Разработчик', load:105 },
+];
+
+// Map date string to index
+function dayIndex(y, m, d) {
+  // find index in days array
+  for (let i = 0; i < days.length; i++) {
+    if (days[i].getFullYear() === y && days[i].getMonth() === m && days[i].getDate() === d) return i;
+  }
+  return -1;
+}
+
+function dIdx(dateStr) {
+  const [y,m,d] = dateStr.split('-').map(Number);
+  return dayIndex(y, m-1, d);
+}
+
+// Initiatives: { id, label, color, members: [empId...], start, end (inclusive day indices) }
+const initiatives = [
+  { id:1, label:'CRM миграция',        color:'var(--init-1)', members:[1,3,6],  startStr:'2026-05-11', endStr:'2026-05-22' },
+  { id:2, label:'Биллинг 2.0',         color:'var(--init-2)', members:[2,4,7],  startStr:'2026-05-13', endStr:'2026-05-29' },
+  { id:3, label:'API Gateway',         color:'var(--init-3)', members:[5,9],    startStr:'2026-05-11', endStr:'2026-05-29' },
+  { id:4, label:'Мобильный клиент',    color:'var(--init-4)', members:[3,12,11],startStr:'2026-05-18', endStr:'2026-06-05' },
+  { id:5, label:'Отчётность Q2',       color:'var(--init-5)', members:[10,8],   startStr:'2026-05-11', endStr:'2026-05-25' },
+  { id:6, label:'DevOps оптимизация',  color:'var(--init-6)', members:[4,5],    startStr:'2026-05-25', endStr:'2026-06-05' },
+];
+
+// Resolve day indices
+initiatives.forEach(i => {
+  i.start = dIdx(i.startStr);
+  i.end   = dIdx(i.endStr);
+  if (i.end < 0) i.end = days.length - 1; // clamp to last available working day
+  if (i.start < 0) i.start = 0;
+});
+
+// Hours per day per employee (simple simulation)
+// base load ~6h; overloaded rows get more
+function hoursForCell(empId, dayIdx) {
+  const emp = employees.find(e => e.id === empId);
+  if (!emp) return 0;
+  // count initiatives active on this day for this employee
+  const active = initiatives.filter(i => i.members.includes(empId) && dayIdx >= i.start && dayIdx <= i.end);
+  if (active.length === 0) return 0;
+  const base = emp.load / 100 * 8; // proportional to load
+  return Math.round(base * active.length / Math.max(1, active.length) * (0.8 + Math.random() * 0.4));
+}
+
+// Precompute deterministic hours (no random)
+function hoursForCellDet(empId, dayIdx) {
+  const emp = employees.find(e => e.id === empId);
+  if (!emp) return 0;
+  const active = initiatives.filter(i => i.members.includes(empId) && dayIdx >= i.start && dayIdx <= i.end);
+  if (active.length === 0) return 0;
+  const base = (emp.load / 100) * 8;
+  // slight variation by day for realism
+  const variation = ((empId * 3 + dayIdx * 7) % 5) * 0.4 - 0.8;
+  return Math.max(1, Math.round((base + variation) * active.length / Math.max(1,active.length)));
+}
+
+// ===== BUILD HEADER =====
+const timelineHead = document.getElementById('timelineHead');
+const weekRow = document.createElement('div'); weekRow.className = 'week-row';
+weeks.forEach(w => {
+  const wc = document.createElement('div');
+  wc.className = 'week-cell';
+  wc.style.width = (w.span * CELL_W) + 'px';
+  wc.style.minWidth = (w.span * CELL_W) + 'px';
+  wc.textContent = w.label;
+  weekRow.appendChild(wc);
+});
+timelineHead.appendChild(weekRow);
+
+const dayRow = document.createElement('div'); dayRow.className = 'day-row';
+const todayDate = new Date(2026, 4, 11); // May 11 = today per context
+days.forEach((d, i) => {
+  const dc = document.createElement('div');
+  dc.className = 'day-cell' + (d.getTime() === todayDate.getTime() ? ' today' : '');
+  dc.innerHTML = `<span class="day-num">${d.getDate()}</span><span class="day-name">${dayNames[d.getDay()]}</span>`;
+  dayRow.appendChild(dc);
+});
+timelineHead.appendChild(dayRow);
+
+// ===== BUILD ROWS =====
+const schedRows = document.getElementById('schedRows');
+
+employees.forEach(emp => {
+  const row = document.createElement('div');
+  row.className = 'sched-row';
+  row.id = `row-emp-${emp.id}`;
+
+  // Left cell
+  const left = document.createElement('div');
+  left.className = 'row-left';
+
+  const loadClass = emp.load > 100 ? 'danger' : emp.load >= 90 ? 'warn' : 'ok';
+  const barW = Math.min(emp.load, 100);
+
+  left.innerHTML = `
+    <div class="avatar avatar--${emp.role}">${emp.initials}</div>
+    <div class="employee-info">
+      <div class="employee-name">${emp.name}</div>
+      <span class="role-badge role-badge--${emp.role}">${emp.roleLabel}</span>
+    </div>
+    <div class="load-bar-wrap">
+      <span class="load-pct ${loadClass}">${emp.load}%</span>
+      <div class="load-bar">
+        <div class="load-bar-fill ${loadClass}" style="width:${barW}%"></div>
+      </div>
+    </div>
+  `;
+  row.appendChild(left);
+
+  // Timeline cells
+  const cells = document.createElement('div');
+  cells.className = 'row-cells';
+  cells.style.position = 'relative';
+
+  days.forEach((d, di) => {
+    const hours = hoursForCellDet(emp.id, di);
+    let cellClass = 'day-col';
+    if (d.getTime() === todayDate.getTime()) cellClass += ' today-col';
+    if (hours > 8) cellClass += ' overload';
+    else if (hours >= 6) cellClass += ' warn-load';
+
+    const dc = document.createElement('div');
+    dc.className = cellClass;
+    dc.id = `cell-${emp.id}-${di}`;
+
+    if (hours > 0) {
+      dc.innerHTML = `<span class="cell-hours">${hours}ч</span>`;
+    }
+    cells.appendChild(dc);
+  });
+
+  // Project bars overlay
+  initiatives.forEach((init, initIdx) => {
+    if (!init.members.includes(emp.id)) return;
+    if (init.end < 0 || init.start > days.length - 1) return;
+
+    const s = Math.max(init.start, 0);
+    const e = Math.min(init.end, days.length - 1);
+    if (s > e) return;
+
+    // Stacking: how many bars already placed for this employee in this range
+    const slotKey = `${emp.id}`;
+    if (!window._barSlots) window._barSlots = {};
+    if (!window._barSlots[slotKey]) window._barSlots[slotKey] = [];
+    // find slot (row) for this bar — check overlap
+    let slot = 0;
+    for (let slot2 = 0; slot2 < 3; slot2++) {
+      const existing = window._barSlots[slotKey].filter(b => b.slot === slot2);
+      const overlaps = existing.some(b => !(e < b.s || s > b.e));
+      if (!overlaps) { slot = slot2; break; }
+      slot = slot2 + 1;
+    }
+    window._barSlots[slotKey].push({ s, e, slot });
+
+    const bar = document.createElement('div');
+    bar.className = 'proj-bar';
+    bar.style.left = (s * CELL_W) + 'px';
+    bar.style.width = ((e - s + 1) * CELL_W - 2) + 'px';
+    bar.style.top = (4 + slot * 19) + 'px';
+    bar.style.background = `color-mix(in srgb, ${init.color} 85%, transparent)`;
+    bar.style.setProperty('background', init.color.replace('var(', '').replace(')', ''));
+    // use direct color from CSS var resolution via inline style trick
+    bar.setAttribute('data-color', init.color);
+    bar.style.cssText += `background: ${init.color};`;
+    bar.textContent = init.label;
+    cells.appendChild(bar);
+  });
+
+  row.appendChild(cells);
+  schedRows.appendChild(row);
+});
+
+// ===== TODAY LINE =====
+// Position: left edge of day index 0 (today) + cell_w/2
+const scrollArea = document.getElementById('schedScroll');
+const todayDi = 0; // first day
+const todayLineLeft = 320 + todayDi * CELL_W + CELL_W / 2; // 320 = left col
+// We'll place it inside schedRows as absolute
+const todayLine = document.createElement('div');
+todayLine.className = 'today-line';
+todayLine.style.left = (todayDi * CELL_W + CELL_W / 2) + 'px';
+todayLine.style.position = 'absolute';
+todayLine.style.top = '0';
+todayLine.style.height = (employees.length * ROW_H) + 'px';
+document.getElementById('schedRows').style.position = 'relative';
+document.getElementById('schedRows').appendChild(todayLine);
+
+// ===== POPOVER =====
+// Static popover on cell: Козлов (emp id=4) × 18 мая (day index 5)
+const kozlovDayIdx = dIdx('2026-05-18'); // should be index 5
+const popoverTarget = document.getElementById(`cell-4-${kozlovDayIdx}`);
+
+if (popoverTarget) {
+  const rect_row = document.getElementById('row-emp-4');
+  const rowTop = rect_row ? rect_row.offsetTop : 0;
+  // Get cell left offset: left col + cell offset
+  const cellLeft = 320 + kozlovDayIdx * CELL_W;
+
+  const pop = document.createElement('div');
+  pop.className = 'popover';
+  pop.style.cssText = `
+    left: ${cellLeft - 110 + CELL_W/2}px;
+    top: ${rowTop - 148}px;
+  `;
+  pop.innerHTML = `
+    <div class="popover-title">18 мая, понедельник</div>
+    <div class="popover-sub">Козлов Д.А. · Разработчик</div>
+    <div class="popover-load">⚠ Загрузка: 11ч / 8ч (137%) — ПЕРЕГРУЗКА</div>
+    <ul class="popover-list">
+      <li>
+        <span class="popover-dot" style="background:var(--init-2)"></span>
+        Биллинг 2.0
+        <span class="popover-hours">6ч</span>
+      </li>
+      <li>
+        <span class="popover-dot" style="background:var(--init-4)"></span>
+        Мобильный клиент
+        <span class="popover-hours">5ч</span>
+      </li>
+    </ul>
+  `;
+
+  // Arrow at bottom pointing down to cell
+  const arrow = document.createElement('div');
+  arrow.className = 'popover-arrow';
+  arrow.style.cssText = `bottom: -8px; left: 50%; transform: translateX(-50%);`;
+  pop.appendChild(arrow);
+
+  // Place inside scroll area but as absolute on rows
+  document.getElementById('schedRows').appendChild(pop);
+}
+
+// ===== SYNC HEADER SCROLL =====
+const schedScroll = document.getElementById('schedScroll');
+schedScroll.addEventListener('scroll', () => {
+  timelineHead.style.transform = `translateX(-${schedScroll.scrollLeft}px)`;
+  // Also sync sticky left column (handled by sticky positioning)
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1170 @@
+<!-- Plane.so reference for /projects | real data from itgri tenant | 2026-05-12 -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Проекты — itgri · JiraAnalysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/lucide-static@latest/font/lucide.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #fafafa;
+      --surface:   #ffffff;
+      --border:    #e4e4e7;
+      --border-lt: #f4f4f5;
+      --text:      #18181b;
+      --text-2:    #52525b;
+      --text-3:    #71717a;
+      --text-4:    #a1a1aa;
+      --indigo:    #6366f1;
+      --indigo-lt: #eef2ff;
+      --indigo-md: #c7d2fe;
+      --green:     #22c55e;
+      --green-lt:  #f0fdf4;
+      --amber:     #f59e0b;
+      --amber-lt:  #fffbeb;
+      --red:       #ef4444;
+      --red-lt:    #fef2f2;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow:    0 1px 4px rgba(0,0,0,0.06);
+      --r-sm:      4px;
+      --r:         8px;
+      --r-lg:      10px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOP HEADER ─────────────────────────────────────────────── */
+    .top-header {
+      height: 48px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .logo-mark {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-mark svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; }
+
+    .header-brand {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      margin-right: 8px;
+    }
+    .header-divider { width: 1px; height: 20px; background: var(--border); }
+
+    .header-search {
+      flex: 1;
+      max-width: 360px;
+      margin-left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0 12px;
+      height: 32px;
+      color: var(--text-3);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .header-search:hover { border-color: #c4c4c9; }
+    .header-search i { font-size: 14px; }
+    .header-search span { color: var(--text-3); }
+    .header-search kbd {
+      margin-left: auto;
+      font-family: inherit;
+      font-size: 11px;
+      color: var(--text-4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+    }
+
+    .header-spacer { flex: 1; }
+
+    .header-actions { display: flex; align-items: center; gap: 4px; }
+    .header-icon-btn {
+      width: 32px; height: 32px;
+      border: none; background: none;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text-2);
+      transition: background 0.12s;
+      position: relative;
+    }
+    .header-icon-btn:hover { background: var(--border-lt); }
+    .header-icon-btn i { font-size: 16px; }
+
+    .notif-dot {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 6px; height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      border: 1.5px solid var(--surface);
+    }
+
+    .user-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #818cf8, #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; color: white;
+      cursor: pointer;
+      margin-left: 4px;
+      flex-shrink: 0;
+    }
+
+    /* ── APP SHELL ──────────────────────────────────────────────── */
+    .app-shell {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ────────────────────────────────────────────────── */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .ws-switcher {
+      padding: 12px 12px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border-radius: var(--r);
+      margin: 4px 4px 0;
+      transition: background 0.12s;
+    }
+    .ws-switcher:hover { background: var(--border-lt); }
+
+    .ws-logo {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: white;
+      flex-shrink: 0;
+    }
+    .ws-info { flex: 1; min-width: 0; }
+    .ws-name {
+      font-size: 13px; font-weight: 600;
+      color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ws-sub { font-size: 11px; color: var(--text-3); }
+    .ws-switcher i { font-size: 14px; color: var(--text-3); }
+
+    .sidebar-section {
+      padding: 16px 8px 4px;
+    }
+    .sidebar-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-4);
+      padding: 0 8px;
+      margin-bottom: 2px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.12s, color 0.12s;
+      position: relative;
+      text-decoration: none;
+      user-select: none;
+    }
+    .nav-item:hover { background: var(--border-lt); color: var(--text); }
+    .nav-item.active {
+      background: var(--indigo-lt);
+      color: var(--indigo);
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: -8px; top: 4px; bottom: 4px;
+      width: 2px;
+      background: var(--indigo);
+      border-radius: 0 2px 2px 0;
+    }
+    .nav-item i { font-size: 15px; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-4);
+      background: var(--border-lt);
+      border-radius: 10px;
+      padding: 1px 6px;
+    }
+    .nav-item.active .nav-badge {
+      background: var(--indigo-md);
+      color: var(--indigo);
+    }
+
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 12px; }
+
+    /* ── MAIN CONTENT ───────────────────────────────────────────── */
+    .main-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      overflow: hidden;
+    }
+
+    /* ── PROJECT LIST ───────────────────────────────────────────── */
+    .project-list-col {
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .col-header {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .col-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .col-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-4);
+      background: var(--border-lt);
+      border-radius: 10px;
+      padding: 1px 7px;
+    }
+    .col-action {
+      width: 26px; height: 26px;
+      border: none; background: none;
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text-3);
+      transition: background 0.12s;
+    }
+    .col-action:hover { background: var(--border-lt); color: var(--text); }
+    .col-action i { font-size: 14px; }
+
+    .project-list { overflow-y: auto; flex: 1; padding: 8px 8px; }
+
+    .project-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: var(--r);
+      cursor: pointer;
+      transition: background 0.12s;
+      margin-bottom: 2px;
+    }
+    .project-row:hover { background: var(--border-lt); }
+    .project-row.active { background: var(--indigo-lt); }
+
+    .project-key-chip {
+      width: 32px; height: 32px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      flex-shrink: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .chip-OS  { background: #ede9fe; color: #7c3aed; }
+    .chip-PMD { background: #dbeafe; color: #1d4ed8; }
+    .chip-PRJ { background: #d1fae5; color: #065f46; }
+    .chip-AD  { background: #fef3c7; color: #92400e; }
+    .chip-RFA { background: #fce7f3; color: #9d174d; }
+    .chip-ITL { background: #e0f2fe; color: #075985; }
+    .chip-PMO { background: #f4f4f5; color: #52525b; }
+
+    .project-info { flex: 1; min-width: 0; }
+    .project-name {
+      font-size: 13px; font-weight: 500;
+      color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .project-row.active .project-name { color: var(--indigo); font-weight: 600; }
+    .project-meta {
+      font-size: 11px; color: var(--text-3);
+      margin-top: 1px;
+    }
+
+    .project-issues-badge {
+      font-size: 11px; font-weight: 500;
+      color: var(--text-3);
+      flex-shrink: 0;
+    }
+    .project-row.active .project-issues-badge { color: var(--indigo); }
+
+    /* ── DETAIL PANE ────────────────────────────────────────────── */
+    .detail-pane {
+      overflow-y: auto;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px 0;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 12px;
+    }
+    .breadcrumb a { color: var(--text-3); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--text-2); }
+    .breadcrumb i { font-size: 12px; }
+
+    .detail-title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding-bottom: 16px;
+    }
+    .detail-key-chip {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .detail-title-text { flex: 1; }
+    .detail-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .detail-subtitle {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 3px;
+    }
+
+    .detail-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-2);
+      transition: background 0.12s, border-color 0.12s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--border-lt); color: var(--text); }
+    .btn i { font-size: 13px; }
+    .btn-primary {
+      background: var(--indigo);
+      color: white;
+      border-color: var(--indigo);
+    }
+    .btn-primary:hover { background: #4f46e5; border-color: #4f46e5; }
+
+    /* Tabs */
+    .detail-tabs {
+      display: flex;
+      gap: 0;
+      margin-top: 4px;
+    }
+    .tab {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-3);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.12s, border-color 0.12s;
+      white-space: nowrap;
+    }
+    .tab:hover { color: var(--text-2); }
+    .tab.active {
+      color: var(--indigo);
+      border-bottom-color: var(--indigo);
+    }
+
+    /* ── DETAIL BODY ────────────────────────────────────────────── */
+    .detail-body {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 860px;
+    }
+
+    /* KPI ROW */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .kpi-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-4);
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .kpi-value.v-active  { color: var(--indigo); }
+    .kpi-value.v-done    { color: var(--green); }
+    .kpi-value.v-wip     { color: var(--amber); }
+    .kpi-value.v-overdue { color: var(--red); }
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 4px;
+    }
+    .kpi-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .kpi-trend.up { color: var(--green); }
+    .kpi-trend.dn { color: var(--red); }
+
+    /* AI SUMMARY CARD */
+    .ai-card {
+      background: var(--surface);
+      border: 1px solid var(--indigo-md);
+      border-radius: var(--r-lg);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.05);
+      overflow: hidden;
+    }
+    .ai-card-header {
+      background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--indigo-md);
+    }
+    .ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--indigo);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .ai-badge i { font-size: 11px; }
+    .ai-model-tag {
+      font-size: 11px;
+      color: #7c3aed;
+      background: #f5f3ff;
+      border: 1px solid #ddd6fe;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-weight: 500;
+    }
+    .ai-updated { font-size: 11px; color: var(--text-3); margin-left: auto; }
+
+    .ai-summary-text {
+      padding: 14px 18px 10px;
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--text-2);
+      border-bottom: 1px solid var(--border-lt);
+    }
+
+    .ai-sections { padding: 10px 18px 14px; display: flex; flex-direction: column; gap: 4px; }
+
+    .ai-section {
+      border: 1px solid var(--border-lt);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+    .ai-section-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      cursor: pointer;
+      background: var(--bg);
+      transition: background 0.12s;
+      user-select: none;
+    }
+    .ai-section-head:hover { background: #f1f5f9; }
+    .ai-section-icon {
+      width: 22px; height: 22px;
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .icon-goals  { background: #dbeafe; color: #1d4ed8; }
+    .icon-prog   { background: #d1fae5; color: #065f46; }
+    .icon-risks  { background: #fce7f3; color: #9d174d; }
+
+    .ai-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .ai-section-head i.chevron {
+      margin-left: auto;
+      font-size: 13px;
+      color: var(--text-4);
+      transition: transform 0.15s;
+    }
+    .ai-section.open .ai-section-head i.chevron { transform: rotate(180deg); }
+
+    .ai-section-body {
+      display: none;
+      padding: 10px 12px 12px 42px;
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.65;
+      border-top: 1px solid var(--border-lt);
+      background: var(--surface);
+    }
+    .ai-section.open .ai-section-body { display: block; }
+    .ai-section-body ul { padding-left: 16px; }
+    .ai-section-body li { margin-bottom: 4px; }
+
+    /* TEAM SECTION */
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .section-card-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-lt);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-card-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-3);
+    }
+    .section-card-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-4);
+      background: var(--border-lt);
+      border-radius: 10px;
+      padding: 1px 7px;
+    }
+
+    .team-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .team-member {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: background 0.12s;
+      cursor: default;
+    }
+    .team-member:hover { background: var(--border-lt); }
+    .avatar-circle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      border: 2px solid var(--surface);
+      box-shadow: 0 0 0 1px var(--border);
+    }
+    .member-info { flex: 1; min-width: 0; }
+    .member-name {
+      font-size: 13px; font-weight: 500; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .member-team { font-size: 11px; color: var(--text-3); }
+    .member-hours {
+      font-size: 12px; font-weight: 500; color: var(--text-3);
+      white-space: nowrap;
+    }
+    .member-role-pill {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .role-consultant { background: #fce7f3; color: #9d174d; }
+    .role-default    { background: var(--border-lt); color: var(--text-3); }
+
+    /* AVATAR STACK */
+    .avatar-stack {
+      display: flex;
+      flex-direction: row-reverse;
+      margin-right: 8px;
+    }
+    .avatar-stack .avatar-circle {
+      margin-left: -8px;
+      box-shadow: 0 0 0 2px var(--surface);
+    }
+
+    /* ACTIVITY FEED */
+    .activity-list { padding: 4px 16px 12px; display: flex; flex-direction: column; gap: 0; }
+    .activity-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-lt);
+      position: relative;
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+    .activity-dot.dot-green  { background: var(--green); }
+    .activity-dot.dot-indigo { background: var(--indigo); }
+    .activity-dot.dot-amber  { background: var(--amber); }
+    .activity-text { font-size: 13px; color: var(--text-2); flex: 1; line-height: 1.5; }
+    .activity-text strong { color: var(--text); font-weight: 600; }
+    .activity-time { font-size: 11px; color: var(--text-4); flex-shrink: 0; margin-top: 2px; }
+
+    /* SCENARIO BADGE */
+    .scenario-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border-lt);
+    }
+    .scenario-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-4); }
+    .scenario-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 6px;
+      color: var(--green);
+      background: var(--green-lt);
+      border: 1px solid #bbf7d0;
+    }
+    .scenario-pill.draft {
+      color: var(--amber);
+      background: var(--amber-lt);
+      border-color: #fde68a;
+    }
+    .scenario-pill i { font-size: 12px; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #c4c4c9; }
+  </style>
+</head>
+<body>
+
+<!-- TOP HEADER -->
+<header class="top-header">
+  <div class="logo-mark">
+    <svg viewBox="0 0 16 16"><path d="M2 8 L6 4 L10 8 L6 12Z" fill="white" stroke="none"/><circle cx="11" cy="8" r="3" fill="none" stroke="white" stroke-width="2"/></svg>
+  </div>
+  <span class="header-brand">JiraAnalysis</span>
+  <div class="header-divider"></div>
+  <div class="header-search">
+    <i class="icon-search"></i>
+    <span>Поиск задач, проектов...</span>
+    <kbd>⌘K</kbd>
+  </div>
+  <div class="header-spacer"></div>
+  <div class="header-actions">
+    <button class="header-icon-btn" title="Уведомления">
+      <i class="icon-bell"></i>
+      <span class="notif-dot"></span>
+    </button>
+    <button class="header-icon-btn" title="Помощь">
+      <i class="icon-help-circle"></i>
+    </button>
+    <div class="user-avatar" title="Алексей К.">АК</div>
+  </div>
+</header>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="ws-switcher">
+      <div class="ws-logo">IT</div>
+      <div class="ws-info">
+        <div class="ws-name">itgri</div>
+        <div class="ws-sub">Jira Cloud</div>
+      </div>
+      <i class="icon-chevrons-up-down"></i>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Рабочее пространство</div>
+      <div class="nav-item"><i class="icon-layout-dashboard"></i> Дашборд</div>
+      <div class="nav-item"><i class="icon-bar-chart-2"></i> Аналитика</div>
+      <div class="nav-item"><i class="icon-users"></i> Ресурсы</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Проекты</div>
+      <div class="nav-item active"><i class="icon-folder-open"></i> Проекты <span class="nav-badge">7</span></div>
+      <div class="nav-item"><i class="icon-layers"></i> Сценарии <span class="nav-badge">2</span></div>
+      <div class="nav-item"><i class="icon-calendar-range"></i> Планирование</div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Система</div>
+      <div class="nav-item"><i class="icon-refresh-cw"></i> Синхронизация</div>
+      <div class="nav-item"><i class="icon-settings"></i> Настройки</div>
+    </div>
+  </nav>
+
+  <!-- MAIN 2-COLUMN -->
+  <div class="main-content">
+
+    <!-- PROJECT LIST -->
+    <div class="project-list-col">
+      <div class="col-header">
+        <span class="col-title">Проекты</span>
+        <span class="col-count">7</span>
+        <button class="col-action"><i class="icon-sliders-horizontal"></i></button>
+        <button class="col-action"><i class="icon-search"></i></button>
+      </div>
+      <div class="project-list">
+
+        <div class="project-row active" onclick="void(0)">
+          <div class="project-key-chip chip-OS">OS</div>
+          <div class="project-info">
+            <div class="project-name">1С</div>
+            <div class="project-meta">Синхронизировано 11 мая</div>
+          </div>
+          <span class="project-issues-badge">75 142</span>
+        </div>
+
+        <div class="project-row">
+          <div class="project-key-chip chip-PMD">PMD</div>
+          <div class="project-info">
+            <div class="project-name">Project Office</div>
+            <div class="project-meta">Синхронизировано 11 мая</div>
+          </div>
+          <span class="project-issues-badge">28 620</span>
+        </div>
+
+        <div class="project-row">
+          <div class="project-key-chip chip-PRJ">PRJ</div>
+          <div class="project-info">
+            <div class="project-name">All Projects</div>
+            <div class="project-meta">Синхронизировано 11 мая</div>
+          </div>
+          <span class="project-issues-badge">7 460</span>
+        </div>
+
+        <div class="project-row">
+          <div class="project-key-chip chip-AD">AD</div>
+          <div class="project-info">
+            <div class="project-name">Операционная работа</div>
+            <div class="project-meta">Синхронизировано 10 мая</div>
+          </div>
+          <span class="project-issues-badge">5 597</span>
+        </div>
+
+        <div class="project-row">
+          <div class="project-key-chip chip-RFA">RFA</div>
+          <div class="project-info">
+            <div class="project-name">Предпроекты</div>
+            <div class="project-meta">Синхронизировано 10 мая</div>
+          </div>
+          <span class="project-issues-badge">2 583</span>
+        </div>
+
+        <div class="project-row">
+          <div class="project-key-chip chip-ITL">ITL</div>
+          <div class="project-info">
+            <div class="project-name">ITLOG</div>
+            <div class="project-meta">Синхронизировано 9 мая</div>
+          </div>
+          <span class="project-issues-badge">380</span>
+        </div>
+
+        <div class="project-row">
+          <div class="project-key-chip chip-PMO">PMO</div>
+          <div class="project-info">
+            <div class="project-name">Каталог проектов</div>
+            <div class="project-meta">Нет задач</div>
+          </div>
+          <span class="project-issues-badge" style="color:var(--text-4)">—</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DETAIL PANE -->
+    <div class="detail-pane">
+      <div class="detail-header">
+        <div class="breadcrumb">
+          <a href="#">Проекты</a>
+          <i class="icon-chevron-right"></i>
+          <span>1С — ERP, Товарный учёт</span>
+        </div>
+        <div class="detail-title-row">
+          <div class="project-key-chip detail-key-chip chip-OS" style="width:36px;height:36px;font-size:12px;">OS</div>
+          <div class="detail-title-text">
+            <h1 class="detail-title">1С</h1>
+            <div class="detail-subtitle">ERP — Товарный учёт · itgri.atlassian.net · 75 142 задачи</div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn"><i class="icon-refresh-cw"></i> Обновить AI</button>
+            <button class="btn"><i class="icon-external-link"></i> Jira</button>
+            <button class="btn btn-primary"><i class="icon-file-down"></i> PDF</button>
+          </div>
+        </div>
+        <div class="detail-tabs">
+          <div class="tab active">Обзор</div>
+          <div class="tab">Задачи</div>
+          <div class="tab">Сценарии</div>
+          <div class="tab">Команда</div>
+        </div>
+      </div>
+
+      <div class="detail-body">
+
+        <!-- KPI ROW -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Активные</div>
+            <div class="kpi-value v-active">2 886</div>
+            <div class="kpi-sub">К выполнению + Бэклог</div>
+            <div class="kpi-trend up"><i class="icon-trending-up" style="font-size:11px"></i> +3.2%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Готово</div>
+            <div class="kpi-value v-done">68 312</div>
+            <div class="kpi-sub">90.9% от всех задач</div>
+            <div class="kpi-trend up"><i class="icon-trending-up" style="font-size:11px"></i> +1.1%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">В работе</div>
+            <div class="kpi-value v-wip">524</div>
+            <div class="kpi-sub">Разработка · Анализ</div>
+            <div class="kpi-trend dn"><i class="icon-trending-down" style="font-size:11px"></i> −12</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Просрочено</div>
+            <div class="kpi-value v-overdue">148</div>
+            <div class="kpi-sub">Нет активности &gt;30 дней</div>
+            <div class="kpi-trend dn" style="color:var(--red)"><i class="icon-alert-triangle" style="font-size:11px"></i> требует внимания</div>
+          </div>
+        </div>
+
+        <!-- AI SUMMARY CARD -->
+        <div class="ai-card">
+          <div class="ai-card-header">
+            <span class="ai-badge"><i class="icon-sparkles"></i> AI-саммари</span>
+            <span class="ai-model-tag">Gemini 2.0 Flash</span>
+            <span class="ai-updated">Обновлено 11 мая, 23:14</span>
+          </div>
+          <div class="ai-summary-text">
+            Проект развивает и поддерживает систему учёта в 1С ERP — преимущественно товарный блок:
+            себестоимость, партионный учёт, закрытие месяца. Большинство активных задач связаны
+            с процессами биметалла, автоматическим расчётом раскрепки и интеграцией с производством.
+            Доля выполненных задач стабильно высокая (90%), но очередь на QA опережает пропускную
+            способность аналитиков.
+          </div>
+          <div class="ai-sections">
+
+            <div class="ai-section open" id="sec-goals">
+              <div class="ai-section-head" onclick="toggleSection('sec-goals')">
+                <div class="ai-section-icon icon-goals"><i class="icon-target"></i></div>
+                <span class="ai-section-title">Цели</span>
+                <i class="icon-chevron-down chevron"></i>
+              </div>
+              <div class="ai-section-body">
+                <ul>
+                  <li>Закрыть чек-лист закрытия месяца: завершить 3 подзадачи разработки по части 1 и 2</li>
+                  <li>Стабилизировать расчёт себестоимости после актов разбраковки Биметалл</li>
+                  <li>Завершить интеграцию обмена с производством ЕРП по данным раскрепки</li>
+                  <li>Устранить сбой кнопок подбора партии в документах оприходования излишков</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="ai-section" id="sec-progress">
+              <div class="ai-section-head" onclick="toggleSection('sec-progress')">
+                <div class="ai-section-icon icon-prog"><i class="icon-bar-chart-2"></i></div>
+                <span class="ai-section-title">Прогресс</span>
+                <i class="icon-chevron-down chevron"></i>
+              </div>
+              <div class="ai-section-body">
+                <ul>
+                  <li>Основной поток задач выполнен — 68 312 из 75 142 (90.9%)</li>
+                  <li>Инициатива «Биметалл Усреднение» включена в Q3 2026 план, остальные задачи биметалла ещё в бэклоге</li>
+                  <li>Скорость команды стабильна: ≈520–540 задач в работе одновременно</li>
+                  <li>Тестирование после свёртки ИБ ЕРП запланировано на июнь 2026</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="ai-section" id="sec-risks">
+              <div class="ai-section-head" onclick="toggleSection('sec-risks')">
+                <div class="ai-section-icon icon-risks"><i class="icon-alert-triangle"></i></div>
+                <span class="ai-section-title">Риски</span>
+                <i class="icon-chevron-down chevron"></i>
+              </div>
+              <div class="ai-section-body">
+                <ul>
+                  <li>148 задач без движения более 30 дней — риск накопления технического долга</li>
+                  <li>Очередь QA превышает пропускную способность: внешний QA-ресурс не заложен в Q3 план</li>
+                  <li>Задачи раскрепки и себестоимости имеют зависимости от данных производственной ИБ — задержки на стороне смежников</li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- SCENARIO STRIP -->
+          <div class="scenario-strip">
+            <span class="scenario-label">Сценарий</span>
+            <span class="scenario-pill"><i class="icon-check-circle-2"></i> Q2 2026 — Утверждён</span>
+            <span class="scenario-pill draft"><i class="icon-circle-dashed"></i> Q3 2026 — Черновик</span>
+          </div>
+        </div>
+
+        <!-- TEAM -->
+        <div class="section-card">
+          <div class="section-card-header">
+            <span class="section-card-title">Команда проекта</span>
+            <span class="section-card-count">Топ 5 по трудозатратам</span>
+          </div>
+          <div class="team-list">
+
+            <div class="team-member">
+              <div class="avatar-circle" style="background: linear-gradient(135deg,#6366f1,#818cf8)">НК</div>
+              <div class="member-info">
+                <div class="member-name">Невзоров Кирилл Андреевич</div>
+                <div class="member-team">Команда Ecom (Core)</div>
+              </div>
+              <span class="member-role-pill role-default">—</span>
+              <span class="member-hours">904.5 ч</span>
+            </div>
+
+            <div class="team-member">
+              <div class="avatar-circle" style="background: linear-gradient(135deg,#0ea5e9,#38bdf8)">СИ</div>
+              <div class="member-info">
+                <div class="member-name">Самородский Иван Петрович</div>
+                <div class="member-team">Команда Ecom (Core)</div>
+              </div>
+              <span class="member-role-pill role-default">—</span>
+              <span class="member-hours">768.0 ч</span>
+            </div>
+
+            <div class="team-member">
+              <div class="avatar-circle" style="background: linear-gradient(135deg,#ec4899,#f472b6)">МН</div>
+              <div class="member-info">
+                <div class="member-name">Медведева Надежда Владимировна</div>
+                <div class="member-team">Команда 1С (ERP — Товарный учёт)</div>
+              </div>
+              <span class="member-role-pill role-consultant">Консультант</span>
+              <span class="member-hours">721.3 ч</span>
+            </div>
+
+            <div class="team-member">
+              <div class="avatar-circle" style="background: linear-gradient(135deg,#f59e0b,#fbbf24)">НА</div>
+              <div class="member-info">
+                <div class="member-name">Нелюбин Андрей Алексеевич</div>
+                <div class="member-team">Команда Ecom (Core)</div>
+              </div>
+              <span class="member-role-pill role-default">—</span>
+              <span class="member-hours">713.4 ч</span>
+            </div>
+
+            <div class="team-member">
+              <div class="avatar-circle" style="background: linear-gradient(135deg,#10b981,#34d399)">СО</div>
+              <div class="member-info">
+                <div class="member-name">Сергеева Ольга Юрьевна</div>
+                <div class="member-team">Команда 1С (ЭДО)</div>
+              </div>
+              <span class="member-role-pill role-default">—</span>
+              <span class="member-hours">700.7 ч</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ACTIVITY FEED -->
+        <div class="section-card">
+          <div class="section-card-header">
+            <span class="section-card-title">Последние события</span>
+          </div>
+          <div class="activity-list">
+
+            <div class="activity-item">
+              <div class="activity-dot dot-green"></div>
+              <div class="activity-text">
+                <strong>Невзоров Кирилл</strong> закрыл задачу
+                <strong>OS-14821</strong> — «Биметалл Усреднение, подбор группы затрат»
+              </div>
+              <div class="activity-time">2 ч назад</div>
+            </div>
+
+            <div class="activity-item">
+              <div class="activity-dot dot-indigo"></div>
+              <div class="activity-text">
+                Обновлён план сценария <strong>Q3 2026</strong> — инициатива «Биметалл Усреднение» включена в черновик
+              </div>
+              <div class="activity-time">5 ч назад</div>
+            </div>
+
+            <div class="activity-item">
+              <div class="activity-dot dot-amber"></div>
+              <div class="activity-text">
+                <strong>Медведева Надежда</strong> добавила комментарий к
+                <strong>OS-14756</strong> — задержка на стороне производственной ИБ
+              </div>
+              <div class="activity-time">Вчера, 17:32</div>
+            </div>
+
+            <div class="activity-item">
+              <div class="activity-dot dot-green"></div>
+              <div class="activity-text">
+                <strong>Самородский Иван</strong> завершил разработку по задаче
+                <strong>OS-14698</strong> — «Чек-лист закрытия месяца, подзадача 3»
+              </div>
+              <div class="activity-time">Вчера, 14:08</div>
+            </div>
+
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div class="activity-text">
+                Запущена синхронизация Jira — получено <strong>+142 новые задачи</strong> по проекту OS
+              </div>
+              <div class="activity-time">11 мая, 23:00</div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /detail-body -->
+    </div><!-- /detail-pane -->
+
+  </div><!-- /main-content -->
+</div><!-- /app-shell -->
+
+<script>
+  function toggleSection(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Полоса инициативы — скобки + заливка (3 уровня × 7 цветов)</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background: #0d1c33;
+    color: #e8f0fa;
+    padding: 32px 24px;
+    min-height: 100vh;
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e8f0fa;
+    margin-bottom: 6px;
+  }
+
+  .page-subtitle {
+    font-size: 13px;
+    color: #7a98b8;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  /* ===================== ANIMATION ===================== */
+  @keyframes ants {
+    to { stroke-dashoffset: -20; }
+  }
+
+  /* ===================== COLOR CARDS ===================== */
+  .color-card {
+    background: #0f2340;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .card-color-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  .card-color-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #e8f0fa;
+  }
+
+  .card-color-hex {
+    font-size: 12px;
+    color: #4a6a8a;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* Sub-section inside card */
+  .fill-section {
+    margin-bottom: 12px;
+  }
+
+  .fill-section:last-child { margin-bottom: 0; }
+
+  .fill-label {
+    font-size: 11px;
+    color: #5a7898;
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ===================== GANTT ===================== */
+  .gantt {
+    background: #0a1628;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .gantt-header {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .gantt-header-left {
+    padding: 6px 12px;
+    font-size: 11px;
+    color: #4a6a8a;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .gantt-header-months {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+  }
+
+  .gantt-month {
+    padding: 6px 0;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #5a7898;
+    letter-spacing: 0.05em;
+  }
+
+  .gantt-month-apr {
+    grid-column: 1 / 5;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .gantt-month-may {
+    grid-column: 5 / 9;
+  }
+
+  .gantt-weeks {
+    display: grid;
+    grid-template-columns: 360px repeat(8, 1fr);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .gantt-weeks-left {
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .gantt-week {
+    padding: 4px 0;
+    text-align: center;
+    font-size: 10px;
+    color: #3a5a7a;
+    border-right: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .gantt-week:last-child { border-right: none; }
+
+  .initiative-group {
+    border-top: 2px solid rgba(0,201,200,0.35);
+  }
+
+  .gantt-row {
+    display: grid;
+    grid-template-columns: 360px repeat(8, 1fr);
+    align-items: center;
+    min-height: 34px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .gantt-row:last-child { border-bottom: none; }
+
+  .gantt-row.initiative-row {
+    min-height: 44px;
+  }
+
+  .gantt-row.phase-row {
+    min-height: 30px;
+  }
+
+  .row-left {
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    height: 100%;
+    min-height: inherit;
+  }
+
+  .chevron { font-size: 10px; color: #5a7898; flex-shrink: 0; }
+
+  .key-badge {
+    font-size: 9px;
+    font-weight: 700;
+    color: #00c9c8;
+    background: rgba(0,201,200,0.12);
+    border: 1px solid rgba(0,201,200,0.25);
+    border-radius: 3px;
+    padding: 1px 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.03em;
+  }
+
+  .initiative-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e8f0fa;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .initiative-hours {
+    font-size: 10px;
+    color: #5a7898;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .avatar-kn { background: #2a8a5a; }
+  .avatar-pi { background: #2a5abf; }
+
+  .phase-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .phase-name {
+    font-size: 11px;
+    color: #8aa8c8;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .phase-hours {
+    font-size: 10px;
+    color: #4a6a8a;
+    white-space: nowrap;
+    margin-right: 4px;
+  }
+
+  .grid-cells {
+    grid-column: 2 / 10;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    height: 100%;
+    position: relative;
+    align-items: center;
+  }
+
+  .week-cell {
+    height: 100%;
+    border-right: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .week-cell:last-child { border-right: none; }
+
+  .bar {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .bar-analyst { background: rgba(0,201,200,0.75); height: 20px; border-radius: 4px; }
+  .bar-dev     { background: rgba(42,127,191,0.75); height: 20px; border-radius: 4px; }
+  .bar-qa      { background: rgba(232,134,74,0.75);  height: 20px; border-radius: 4px; }
+  .bar-opo     { background: rgba(82,211,100,0.75);  height: 20px; border-radius: 4px; }
+
+  .bar-avatar {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 6px;
+    font-weight: 700;
+    color: #fff;
+    margin-left: 4px;
+    flex-shrink: 0;
+  }
+
+  /* ===================== BRACKET SUMMARY BAR ===================== */
+  .bar-bracket {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 22px;
+    /* --bc set inline; fill classes add background */
+  }
+
+  .bar-bracket svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .bracket-left,
+  .bracket-right {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 16px;
+  }
+
+  .bracket-left {
+    left: 0;
+    border-left: 2px solid var(--bc);
+    border-top: 2px solid var(--bc);
+    border-bottom: 2px solid var(--bc);
+    border-radius: 1px 0 0 1px;
+  }
+
+  .bracket-right {
+    right: 0;
+    border-right: 2px solid var(--bc);
+    border-top: 2px solid var(--bc);
+    border-bottom: 2px solid var(--bc);
+    border-radius: 0 1px 1px 0;
+  }
+
+  .bracket-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--bc);
+    background: #0a1628;
+    padding: 0 6px;
+    white-space: nowrap;
+    z-index: 2;
+    letter-spacing: 0.02em;
+  }
+
+  /* ===================== FILL LEVELS ===================== */
+  /* Soft 10% — plain rgba tint */
+  .fill-soft {
+    background: var(--bc-fill-soft);
+    border-radius: 2px;
+  }
+
+  /* Mid 20% — top-to-bottom gradient */
+  .fill-mid {
+    background: var(--bc-fill-mid-top);
+    background: linear-gradient(180deg, var(--bc-fill-mid-top) 0%, var(--bc-fill-mid-bot) 100%);
+    border-radius: 2px;
+  }
+
+  /* Dense 35% — flat + inset shadow */
+  .fill-dense {
+    background: var(--bc-fill-dense);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+    border-radius: 2px;
+  }
+
+  /* bracket-label background must match the fill level to avoid "floating text" look */
+  .fill-soft  .bracket-label { background: transparent; text-shadow: 0 0 6px rgba(0,0,0,0.9); }
+  .fill-mid   .bracket-label { background: transparent; text-shadow: 0 0 6px rgba(0,0,0,0.9); }
+  .fill-dense .bracket-label { background: transparent; text-shadow: 0 0 6px rgba(0,0,0,0.9); }
+
+  /* ===================== COMPARISON TABLE ===================== */
+  .comparison {
+    background: #0f2340;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 8px;
+  }
+
+  .comparison-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #b8c9e0;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+  }
+
+  .cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+
+  .cmp-table th {
+    font-size: 10px;
+    color: #5a7898;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 4px 8px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .cmp-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+
+  .cmp-table tr:last-child td { border-bottom: none; }
+
+  .cmp-color-label {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .cmp-bar-preview {
+    display: inline-block;
+    width: 100px;
+    height: 16px;
+    border-radius: 2px;
+    position: relative;
+    vertical-align: middle;
+  }
+
+  /* bracket lines on preview — SVG inline */
+  .cmp-bar-preview svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .recommendation-text {
+    font-size: 13px;
+    color: #8aa8c8;
+    line-height: 1.75;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding-top: 16px;
+  }
+
+  .recommendation-text strong { color: #e8f0fa; }
+</style>
+</head>
+<body>
+
+<div class="page-title">Полоса инициативы — скобки + заливка (3 уровня насыщенности × 7 цветов)</div>
+<div class="page-subtitle">
+  Бегущий пунктир 4s · скобки [ ] · три уровня заливки: Слабая 10% / Средняя 20% + градиент / Плотная 35% + inset shadow
+</div>
+
+<!--
+  Grid math (8 недель):
+  W2 = 12.5%  W3 = 25%  W4 = 37.5%  W5 = 50%  W6 = 62.5%
+  Summary W2–W6 → left:12.5%; width:62.5%
+  Анализ W2–W3  → left:12.5%; width:25%
+  Разработка W4–W5 → left:37.5%; width:25%
+  Тестирование W5 → left:50%; width:12.5%
+  ОПЭ W6 → left:62.5%; width:12.5%
+-->
+
+<!-- Shared phase rows macro — same for all 21 subsections -->
+
+<!-- ================================================================
+     MACRO gantt_phases — inline repeated per subsection
+     Initiative row background color set via class on .gantt-row
+     ================================================================ -->
+
+<!-- ================================================================
+     COLOR 1: СЕРЕБРИСТЫЙ #b8c9e0
+     rgba vals: 10%=rgba(184,201,224,0.10)  25%=0.25  15%=0.15  35%=0.35
+     ================================================================ -->
+<div class="color-card">
+  <div class="card-header">
+    <div class="card-color-swatch" style="background:#b8c9e0;"></div>
+    <span class="card-color-name">Серебристый</span>
+    <span class="card-color-hex">#b8c9e0</span>
+  </div>
+
+  <!-- СЛАБАЯ 10% -->
+  <div class="fill-section">
+    <div class="fill-label">Слабая 10%</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-soft" style="left:12.5%;width:62.5%;--bc:#b8c9e0;--bc-fill-soft:rgba(184,201,224,0.10);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#b8c9e0" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#b8c9e0" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div>
+              <div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СРЕДНЯЯ 20% -->
+  <div class="fill-section">
+    <div class="fill-label">Средняя 20% + градиент</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-mid" style="left:12.5%;width:62.5%;--bc:#b8c9e0;--bc-fill-mid-top:rgba(184,201,224,0.25);--bc-fill-mid-bot:rgba(184,201,224,0.15);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#b8c9e0" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#b8c9e0" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div>
+              <div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПЛОТНАЯ 35% -->
+  <div class="fill-section">
+    <div class="fill-label">Плотная 35% + inset shadow</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-dense" style="left:12.5%;width:62.5%;--bc:#b8c9e0;--bc-fill-dense:rgba(184,201,224,0.35);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#b8c9e0" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#b8c9e0" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div>
+              <div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     COLOR 2: CYAN #38bdf8
+     rgba: 10%=rgba(56,189,248,0.10)  25%=0.25  15%=0.15  35%=0.35
+     ================================================================ -->
+<div class="color-card">
+  <div class="card-header">
+    <div class="card-color-swatch" style="background:#38bdf8;"></div>
+    <span class="card-color-name">Cyan</span>
+    <span class="card-color-hex">#38bdf8</span>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Слабая 10%</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-soft" style="left:12.5%;width:62.5%;--bc:#38bdf8;--bc-fill-soft:rgba(56,189,248,0.10);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Средняя 20% + градиент</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-mid" style="left:12.5%;width:62.5%;--bc:#38bdf8;--bc-fill-mid-top:rgba(56,189,248,0.25);--bc-fill-mid-bot:rgba(56,189,248,0.15);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Плотная 35% + inset shadow</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-dense" style="left:12.5%;width:62.5%;--bc:#38bdf8;--bc-fill-dense:rgba(56,189,248,0.35);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     COLOR 3: ЯНТАРЬ #f5a524
+     rgba: 10%=rgba(245,165,36,0.10) 25%=0.25 15%=0.15 35%=0.35
+     ================================================================ -->
+<div class="color-card">
+  <div class="card-header">
+    <div class="card-color-swatch" style="background:#f5a524;"></div>
+    <span class="card-color-name">Янтарь</span>
+    <span class="card-color-hex">#f5a524</span>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Слабая 10%</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-soft" style="left:12.5%;width:62.5%;--bc:#f5a524;--bc-fill-soft:rgba(245,165,36,0.10);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#f5a524" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#f5a524" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Средняя 20% + градиент</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-mid" style="left:12.5%;width:62.5%;--bc:#f5a524;--bc-fill-mid-top:rgba(245,165,36,0.25);--bc-fill-mid-bot:rgba(245,165,36,0.15);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#f5a524" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#f5a524" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Плотная 35% + inset shadow</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-dense" style="left:12.5%;width:62.5%;--bc:#f5a524;--bc-fill-dense:rgba(245,165,36,0.35);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#f5a524" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#f5a524" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     COLOR 4: МЯТНЫЙ #5eead4
+     rgba: 10%=rgba(94,234,212,0.10) 25%=0.25 15%=0.15 35%=0.35
+     ================================================================ -->
+<div class="color-card">
+  <div class="card-header">
+    <div class="card-color-swatch" style="background:#5eead4;"></div>
+    <span class="card-color-name">Мятный</span>
+    <span class="card-color-hex">#5eead4</span>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Слабая 10%</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-soft" style="left:12.5%;width:62.5%;--bc:#5eead4;--bc-fill-soft:rgba(94,234,212,0.10);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#5eead4" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#5eead4" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Средняя 20% + градиент</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-mid" style="left:12.5%;width:62.5%;--bc:#5eead4;--bc-fill-mid-top:rgba(94,234,212,0.25);--bc-fill-mid-bot:rgba(94,234,212,0.15);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#5eead4" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#5eead4" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Плотная 35% + inset shadow</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-dense" style="left:12.5%;width:62.5%;--bc:#5eead4;--bc-fill-dense:rgba(94,234,212,0.35);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#5eead4" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#5eead4" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     COLOR 5: ЛАВАНДОВЫЙ #a78bfa
+     rgba: 10%=rgba(167,139,250,0.10) 25%=0.25 15%=0.15 35%=0.35
+     ================================================================ -->
+<div class="color-card">
+  <div class="card-header">
+    <div class="card-color-swatch" style="background:#a78bfa;"></div>
+    <span class="card-color-name">Лавандовый</span>
+    <span class="card-color-hex">#a78bfa</span>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Слабая 10%</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-soft" style="left:12.5%;width:62.5%;--bc:#a78bfa;--bc-fill-soft:rgba(167,139,250,0.10);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Средняя 20% + градиент</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-mid" style="left:12.5%;width:62.5%;--bc:#a78bfa;--bc-fill-mid-top:rgba(167,139,250,0.25);--bc-fill-mid-bot:rgba(167,139,250,0.15);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Плотная 35% + inset shadow</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-dense" style="left:12.5%;width:62.5%;--bc:#a78bfa;--bc-fill-dense:rgba(167,139,250,0.35);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     COLOR 6: РОЗОВЫЙ КОРАЛЛ #fb7185
+     rgba: 10%=rgba(251,113,133,0.10) 25%=0.25 15%=0.15 35%=0.35
+     ================================================================ -->
+<div class="color-card">
+  <div class="card-header">
+    <div class="card-color-swatch" style="background:#fb7185;"></div>
+    <span class="card-color-name">Розовый коралл</span>
+    <span class="card-color-hex">#fb7185</span>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Слабая 10%</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-soft" style="left:12.5%;width:62.5%;--bc:#fb7185;--bc-fill-soft:rgba(251,113,133,0.10);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Средняя 20% + градиент</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-mid" style="left:12.5%;width:62.5%;--bc:#fb7185;--bc-fill-mid-top:rgba(251,113,133,0.25);--bc-fill-mid-bot:rgba(251,113,133,0.15);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Плотная 35% + inset shadow</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-dense" style="left:12.5%;width:62.5%;--bc:#fb7185;--bc-fill-dense:rgba(251,113,133,0.35);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     COLOR 7: ЛАЙМОВЫЙ #84cc16
+     rgba: 10%=rgba(132,204,22,0.10) 25%=0.25 15%=0.15 35%=0.35
+     ================================================================ -->
+<div class="color-card">
+  <div class="card-header">
+    <div class="card-color-swatch" style="background:#84cc16;"></div>
+    <span class="card-color-name">Лаймовый</span>
+    <span class="card-color-hex">#84cc16</span>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Слабая 10%</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-soft" style="left:12.5%;width:62.5%;--bc:#84cc16;--bc-fill-soft:rgba(132,204,22,0.10);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#84cc16" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#84cc16" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Средняя 20% + градиент</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-mid" style="left:12.5%;width:62.5%;--bc:#84cc16;--bc-fill-mid-top:rgba(132,204,22,0.25);--bc-fill-mid-bot:rgba(132,204,22,0.15);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#84cc16" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#84cc16" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fill-section">
+    <div class="fill-label">Плотная 35% + inset shadow</div>
+    <div class="gantt">
+      <div class="gantt-header"><div class="gantt-header-left"></div><div class="gantt-header-months"><div class="gantt-month gantt-month-apr">АПР 2026</div><div class="gantt-month gantt-month-may">МАЙ 2026</div></div></div>
+      <div class="gantt-weeks"><div class="gantt-weeks-left"></div><div class="gantt-week">W1</div><div class="gantt-week">W2</div><div class="gantt-week">W3</div><div class="gantt-week">W4</div><div class="gantt-week">W5</div><div class="gantt-week">W6</div><div class="gantt-week">W7</div><div class="gantt-week">W8</div></div>
+      <div class="initiative-group">
+        <div class="gantt-row initiative-row">
+          <div class="row-left"><span class="chevron">▼</span><span class="key-badge">ITL-304</span><span class="initiative-name">0. Подсистема закрытия месяца</span><span class="initiative-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+          <div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="bar-bracket fill-dense" style="left:12.5%;width:62.5%;--bc:#84cc16;--bc-fill-dense:rgba(132,204,22,0.35);">
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="100" y2="1" stroke="#84cc16" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite;"/><line x1="0" y1="21" x2="100" y2="21" stroke="#84cc16" stroke-width="1.5" stroke-dasharray="6 4" style="animation:ants 4s linear infinite reverse;"/></svg>
+              <div class="bracket-left"></div><div class="bracket-right"></div><div class="bracket-label">0. Закрытие месяца · 130 ч</div>
+            </div>
+          </div>
+        </div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#00c9c8;"></span><span class="phase-name">Анализ</span><span class="phase-hours">20 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-analyst" style="left:12.5%;width:25%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#2a7fbf;"></span><span class="phase-name">Разработка</span><span class="phase-hours">80 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-dev" style="left:37.5%;width:25%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#e8864a;"></span><span class="phase-name">Тестирование</span><span class="phase-hours">20 ч</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-qa" style="left:50%;width:12.5%;"></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Аналитик</span><span class="phase-hours">5 ч</span><span class="avatar avatar-kn">КН</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-kn">КН</span></div></div></div>
+        <div class="gantt-row phase-row"><div class="row-left"><span style="width:18px;"></span><span class="phase-dot" style="background:#52d364;"></span><span class="phase-name">ОПЭ · Программист</span><span class="phase-hours">5 ч</span><span class="avatar avatar-pi">ПИ</span></div><div class="grid-cells" style="position:relative;"><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="bar bar-opo" style="left:62.5%;width:12.5%;"><span class="bar-avatar avatar-pi">ПИ</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     COMPARISON BLOCK
+     ================================================================ -->
+<div class="comparison">
+  <div class="comparison-title">Сравнение — 7 цветов × 3 уровня заливки</div>
+
+  <table class="cmp-table">
+    <thead>
+      <tr>
+        <th>Цвет</th>
+        <th>Слабая 10%</th>
+        <th>Средняя 20%</th>
+        <th>Плотная 35%</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Серебристый #b8c9e0 -->
+      <tr>
+        <td><span class="cmp-color-label" style="color:#b8c9e0;">Серебристый #b8c9e0</span></td>
+        <td>
+          <div class="cmp-bar-preview" style="background:rgba(184,201,224,0.10);border-top:1.5px solid #b8c9e0;border-bottom:1.5px solid #b8c9e0;border-left:2px solid #b8c9e0;border-right:2px solid #b8c9e0;border-radius:2px;"></div>
+        </td>
+        <td>
+          <div class="cmp-bar-preview" style="background:linear-gradient(180deg,rgba(184,201,224,0.25),rgba(184,201,224,0.15));border-top:1.5px solid #b8c9e0;border-bottom:1.5px solid #b8c9e0;border-left:2px solid #b8c9e0;border-right:2px solid #b8c9e0;border-radius:2px;"></div>
+        </td>
+        <td>
+          <div class="cmp-bar-preview" style="background:rgba(184,201,224,0.35);box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);border-top:1.5px solid #b8c9e0;border-bottom:1.5px solid #b8c9e0;border-left:2px solid #b8c9e0;border-right:2px solid #b8c9e0;border-radius:2px;"></div>
+        </td>
+      </tr>
+      <!-- Cyan #38bdf8 -->
+      <tr>
+        <td><span class="cmp-color-label" style="color:#38bdf8;">Cyan #38bdf8</span></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(56,189,248,0.10);border-top:1.5px solid #38bdf8;border-bottom:1.5px solid #38bdf8;border-left:2px solid #38bdf8;border-right:2px solid #38bdf8;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:linear-gradient(180deg,rgba(56,189,248,0.25),rgba(56,189,248,0.15));border-top:1.5px solid #38bdf8;border-bottom:1.5px solid #38bdf8;border-left:2px solid #38bdf8;border-right:2px solid #38bdf8;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(56,189,248,0.35);box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);border-top:1.5px solid #38bdf8;border-bottom:1.5px solid #38bdf8;border-left:2px solid #38bdf8;border-right:2px solid #38bdf8;border-radius:2px;"></div></td>
+      </tr>
+      <!-- Янтарь #f5a524 -->
+      <tr>
+        <td><span class="cmp-color-label" style="color:#f5a524;">Янтарь #f5a524</span></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(245,165,36,0.10);border-top:1.5px solid #f5a524;border-bottom:1.5px solid #f5a524;border-left:2px solid #f5a524;border-right:2px solid #f5a524;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:linear-gradient(180deg,rgba(245,165,36,0.25),rgba(245,165,36,0.15));border-top:1.5px solid #f5a524;border-bottom:1.5px solid #f5a524;border-left:2px solid #f5a524;border-right:2px solid #f5a524;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(245,165,36,0.35);box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);border-top:1.5px solid #f5a524;border-bottom:1.5px solid #f5a524;border-left:2px solid #f5a524;border-right:2px solid #f5a524;border-radius:2px;"></div></td>
+      </tr>
+      <!-- Мятный #5eead4 -->
+      <tr>
+        <td><span class="cmp-color-label" style="color:#5eead4;">Мятный #5eead4</span></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(94,234,212,0.10);border-top:1.5px solid #5eead4;border-bottom:1.5px solid #5eead4;border-left:2px solid #5eead4;border-right:2px solid #5eead4;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:linear-gradient(180deg,rgba(94,234,212,0.25),rgba(94,234,212,0.15));border-top:1.5px solid #5eead4;border-bottom:1.5px solid #5eead4;border-left:2px solid #5eead4;border-right:2px solid #5eead4;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(94,234,212,0.35);box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);border-top:1.5px solid #5eead4;border-bottom:1.5px solid #5eead4;border-left:2px solid #5eead4;border-right:2px solid #5eead4;border-radius:2px;"></div></td>
+      </tr>
+      <!-- Лавандовый #a78bfa -->
+      <tr>
+        <td><span class="cmp-color-label" style="color:#a78bfa;">Лавандовый #a78bfa</span></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(167,139,250,0.10);border-top:1.5px solid #a78bfa;border-bottom:1.5px solid #a78bfa;border-left:2px solid #a78bfa;border-right:2px solid #a78bfa;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:linear-gradient(180deg,rgba(167,139,250,0.25),rgba(167,139,250,0.15));border-top:1.5px solid #a78bfa;border-bottom:1.5px solid #a78bfa;border-left:2px solid #a78bfa;border-right:2px solid #a78bfa;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(167,139,250,0.35);box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);border-top:1.5px solid #a78bfa;border-bottom:1.5px solid #a78bfa;border-left:2px solid #a78bfa;border-right:2px solid #a78bfa;border-radius:2px;"></div></td>
+      </tr>
+      <!-- Коралл #fb7185 -->
+      <tr>
+        <td><span class="cmp-color-label" style="color:#fb7185;">Коралл #fb7185</span></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(251,113,133,0.10);border-top:1.5px solid #fb7185;border-bottom:1.5px solid #fb7185;border-left:2px solid #fb7185;border-right:2px solid #fb7185;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:linear-gradient(180deg,rgba(251,113,133,0.25),rgba(251,113,133,0.15));border-top:1.5px solid #fb7185;border-bottom:1.5px solid #fb7185;border-left:2px solid #fb7185;border-right:2px solid #fb7185;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(251,113,133,0.35);box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);border-top:1.5px solid #fb7185;border-bottom:1.5px solid #fb7185;border-left:2px solid #fb7185;border-right:2px solid #fb7185;border-radius:2px;"></div></td>
+      </tr>
+      <!-- Лайм #84cc16 -->
+      <tr>
+        <td><span class="cmp-color-label" style="color:#84cc16;">Лаймовый #84cc16</span></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(132,204,22,0.10);border-top:1.5px solid #84cc16;border-bottom:1.5px solid #84cc16;border-left:2px solid #84cc16;border-right:2px solid #84cc16;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:linear-gradient(180deg,rgba(132,204,22,0.25),rgba(132,204,22,0.15));border-top:1.5px solid #84cc16;border-bottom:1.5px solid #84cc16;border-left:2px solid #84cc16;border-right:2px solid #84cc16;border-radius:2px;"></div></td>
+        <td><div class="cmp-bar-preview" style="background:rgba(132,204,22,0.35);box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);border-top:1.5px solid #84cc16;border-bottom:1.5px solid #84cc16;border-left:2px solid #84cc16;border-right:2px solid #84cc16;border-radius:2px;"></div></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="recommendation-text">
+    <strong>Рекомендация — Лавандовый #a78bfa + Средняя заливка 20%.</strong>
+    Лавандовый единственный не пересекается ни с одним системным цветом (аналитика #00c9c8, разработка #2a7fbf, ОПЭ #52d364, тестирование #e8864a) и достаточно светлый, чтобы скобки и пунктир были хорошо видны на #0d1c33.
+    Средняя заливка (20% + градиент сверху вниз) добавляет ровно столько объёма, чтобы полоса «держалась» как единый элемент, не перекрывая при этом фазовые строки под ней.
+    Слабая (10%) подходит как утилитарный режим, когда на экране много инициатив одновременно — меньше визуального шума. Плотная (35%) — только для выделения одной приоритетной инициативы.
+  </div>
+</div>
+
+</body>
+</html>

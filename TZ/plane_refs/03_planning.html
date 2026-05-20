@@ -1,0 +1,1738 @@
+<!-- Plane.so Views/Filters reference for /resource-planning | real itgri data | 2026-05-12 -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Планирование — Q3 2026 | Plane.so стиль</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --surface: #ffffff;
+    --app-bg: #fafafa;
+    --border: #e4e4e7;
+    --border-light: #f0f0f2;
+    --text-primary: #18181b;
+    --text-secondary: #71717a;
+    --text-muted: #a1a1aa;
+    --accent: #6366f1;
+    --accent-hover: #4f46e5;
+    --accent-bg: #eef2ff;
+    --accent-text: #4338ca;
+    --success: #22c55e;
+    --success-bg: #f0fdf4;
+    --warning: #f59e0b;
+    --warning-bg: #fffbeb;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+    --violet: #8b5cf6;
+    --violet-bg: #f5f3ff;
+    --emerald: #10b981;
+    --emerald-bg: #ecfdf5;
+    --amber: #f59e0b;
+    --amber-bg: #fffbeb;
+    --indigo-bar: #6366f1;
+    --radius: 8px;
+    --radius-sm: 6px;
+    --radius-full: 9999px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 14px;
+    background: var(--app-bg);
+    color: var(--text-primary);
+    line-height: 1.5;
+    overflow: hidden;
+  }
+
+  /* ─── Shell ─────────────────────────────── */
+  .shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ─── Topbar ─────────────────────────────── */
+  .topbar {
+    height: 52px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+    z-index: 20;
+  }
+
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+    padding-right: 16px;
+    border-right: 1px solid var(--border);
+  }
+  .topbar-brand .logo-dot {
+    width: 22px; height: 22px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .topbar-brand .logo-dot svg { color: white; }
+
+  .topbar-crumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+  .topbar-crumb .crumb-sep { color: var(--text-muted); }
+  .topbar-crumb .crumb-active { color: var(--text-primary); font-weight: 500; }
+
+  .topbar-spacer { flex: 1; }
+
+  .topbar-scenario {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-bg);
+    border: 1px solid #c7d2fe;
+    border-radius: var(--radius-full);
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent-text);
+  }
+  .topbar-scenario .badge-dot {
+    width: 7px; height: 7px;
+    background: var(--warning);
+    border-radius: 50%;
+  }
+
+  /* ─── Body ─────────────────────────────── */
+  .body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ─── Left Sidebar ─────────────────────── */
+  .sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid var(--border-light);
+    flex-shrink: 0;
+  }
+
+  .btn-new-view {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 7px 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-new-view:hover { background: var(--accent-hover); }
+
+  .sidebar-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 8px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Section header */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 4px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+  .section-chevron { color: var(--text-muted); transition: transform 0.15s; }
+  .section-header.collapsed .section-chevron { transform: rotate(-90deg); }
+
+  /* Saved Views */
+  .view-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    cursor: pointer;
+    border-radius: 0;
+    position: relative;
+    transition: background 0.1s;
+    user-select: none;
+  }
+  .view-item:hover { background: #f4f4f5; }
+  .view-item:hover .view-actions { opacity: 1; }
+
+  .view-item.active {
+    background: var(--accent-bg);
+    border-left: 2px solid var(--accent);
+    padding-left: 12px;
+  }
+  .view-item.active .view-name { color: var(--accent-text); font-weight: 500; }
+  .view-item.active .view-icon { color: var(--accent); }
+
+  .view-icon { color: var(--text-muted); flex-shrink: 0; }
+  .view-name { font-size: 13px; color: var(--text-primary); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .view-actions { opacity: 0; display: flex; gap: 2px; transition: opacity 0.1s; }
+  .view-action-btn {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px;
+    color: var(--text-muted);
+    transition: background 0.1s, color 0.1s;
+  }
+  .view-action-btn:hover { background: var(--border); color: var(--text-primary); }
+
+  /* Filter groups */
+  .filter-group { border-top: 1px solid var(--border-light); }
+
+  .filter-group-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .filter-group-header:hover { background: #f4f4f5; }
+  .filter-group-title {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .filter-group-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: #f4f4f5;
+    border-radius: var(--radius-full);
+    padding: 1px 7px;
+  }
+  .filter-group-chevron { color: var(--text-muted); transition: transform 0.15s; }
+  .filter-group.collapsed .filter-group-chevron { transform: rotate(-90deg); }
+  .filter-group.collapsed .filter-group-body { display: none; }
+
+  .filter-group-body { padding: 2px 0 8px; }
+
+  /* Checkbox list */
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .check-item:hover { background: #f4f4f5; }
+  .check-box {
+    width: 15px; height: 15px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.1s, background 0.1s;
+  }
+  .check-item.checked .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .check-item.checked .check-box::after {
+    content: '';
+    width: 8px; height: 5px;
+    border-left: 1.5px solid white;
+    border-bottom: 1.5px solid white;
+    transform: rotate(-45deg) translate(0px, -1px);
+    display: block;
+  }
+  .check-label { font-size: 13px; color: var(--text-primary); flex: 1; }
+  .check-count { font-size: 11px; color: var(--text-muted); }
+
+  .check-key-badge {
+    display: inline-flex;
+    align-items: center;
+    background: #f4f4f5;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-right: 2px;
+  }
+
+  /* Search in filter */
+  .filter-search {
+    margin: 4px 14px 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--app-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 5px 8px;
+  }
+  .filter-search svg { color: var(--text-muted); flex-shrink: 0; }
+  .filter-search input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--text-primary);
+    outline: none;
+  }
+  .filter-search input::placeholder { color: var(--text-muted); }
+
+  /* Date range mock */
+  .date-range-mock {
+    margin: 4px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .date-range-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-light);
+  }
+  .date-range-row:last-child { border-bottom: none; }
+  .date-range-label { font-size: 11px; color: var(--text-muted); width: 28px; flex-shrink: 0; }
+  .date-range-val { font-weight: 500; color: var(--text-primary); }
+
+  /* Status chips in filter */
+  .status-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 4px 14px 8px;
+  }
+  .status-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.1s;
+    color: var(--text-secondary);
+    background: var(--surface);
+  }
+  .status-chip:hover { border-color: var(--accent); color: var(--accent-text); background: var(--accent-bg); }
+  .status-chip.active { border-color: var(--accent); color: var(--accent-text); background: var(--accent-bg); }
+  .status-chip .chip-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  /* Sidebar footer */
+  .sidebar-footer {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border-light);
+    flex-shrink: 0;
+  }
+  .reset-link {
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.1s;
+  }
+  .reset-link:hover { color: var(--danger); }
+
+  /* ─── Main area ──────────────────────── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  /* ─── Filter bar ──────────────────────── */
+  .filterbar {
+    height: 48px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    overflow-x: auto;
+  }
+  .filterbar::-webkit-scrollbar { display: none; }
+
+  .filter-chips-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    white-space: nowrap;
+    margin-right: 2px;
+  }
+
+  .active-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px 4px 10px;
+    background: var(--surface);
+    border: 1px solid #d1d5db;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: default;
+    transition: border-color 0.1s, background 0.1s;
+  }
+  .active-chip:hover { border-color: var(--accent); background: var(--accent-bg); }
+  .active-chip .chip-key { color: var(--text-muted); font-weight: 400; }
+  .active-chip .chip-val { color: var(--text-primary); font-weight: 500; }
+  .active-chip .chip-remove {
+    display: flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    color: var(--text-muted);
+    transition: background 0.1s, color 0.1s;
+    cursor: pointer;
+  }
+  .active-chip .chip-remove:hover { background: #e4e4e7; color: var(--text-primary); }
+
+  .filterbar-spacer { flex: 1; }
+
+  /* View switcher */
+  .view-switcher {
+    display: flex;
+    align-items: center;
+    background: #f4f4f5;
+    border-radius: var(--radius-sm);
+    padding: 2px;
+    gap: 1px;
+  }
+  .view-switcher-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.1s;
+    white-space: nowrap;
+  }
+  .view-switcher-btn:hover { background: var(--surface); color: var(--text-primary); }
+  .view-switcher-btn.active { background: var(--surface); color: var(--text-primary); box-shadow: var(--shadow-sm); }
+
+  .zoom-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .zoom-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface);
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.1s, color 0.1s;
+  }
+  .zoom-btn:hover { background: #f4f4f5; color: var(--text-primary); }
+  .zoom-btn + .zoom-btn { border-left: 1px solid var(--border); }
+
+  .sort-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.1s;
+    white-space: nowrap;
+  }
+  .sort-btn:hover { border-color: var(--accent); color: var(--accent-text); }
+
+  .search-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.15s;
+    min-width: 140px;
+  }
+  .search-btn:hover { border-color: var(--accent); }
+
+  /* ─── Gantt container ──────────────────── */
+  .gantt-container {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+  }
+  .gantt-container::-webkit-scrollbar { width: 8px; height: 8px; }
+  .gantt-container::-webkit-scrollbar-track { background: var(--app-bg); }
+  .gantt-container::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 4px; }
+
+  .gantt-table {
+    min-width: max-content;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Gantt header */
+  .gantt-header {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  .gantt-label-col {
+    width: 240px;
+    flex-shrink: 0;
+    position: sticky;
+    left: 0;
+    background: var(--surface);
+    z-index: 11;
+    border-right: 1px solid var(--border);
+  }
+
+  .gantt-header .gantt-label-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 12px 6px;
+  }
+
+  .gantt-label-inner {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  .gantt-timeline {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .gantt-months {
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .gantt-month {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border-right: 1px solid var(--border-light);
+  }
+
+  .gantt-weeks {
+    display: flex;
+  }
+
+  .gantt-week {
+    width: 80px;
+    flex-shrink: 0;
+    padding: 4px 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-right: 1px solid var(--border-light);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+  .gantt-week .week-num { font-size: 10px; color: var(--text-muted); }
+  .gantt-week.today-col { background: #eef2ff; }
+  .gantt-week.today-col .week-date { color: var(--accent); font-weight: 600; }
+
+  /* Gantt row */
+  .gantt-row {
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+    min-height: 56px;
+    transition: background 0.1s;
+  }
+  .gantt-row:hover { background: #fafafa; }
+  .gantt-row.overload { background: #fff5f5; }
+  .gantt-row.overload:hover { background: #fef2f2; }
+
+  .gantt-row .gantt-label-col {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 10px;
+    background: inherit;
+  }
+
+  .employee-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0;
+  }
+
+  .employee-info { min-width: 0; flex: 1; }
+  .employee-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .employee-role {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .overload-indicator {
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--danger);
+  }
+
+  /* Gantt bars area */
+  .gantt-bars {
+    display: flex;
+    align-items: center;
+    position: relative;
+    flex: 1;
+    padding: 8px 0;
+    gap: 0;
+  }
+
+  .gantt-week-slot {
+    width: 80px;
+    flex-shrink: 0;
+    height: 100%;
+    border-right: 1px solid var(--border-light);
+    position: relative;
+  }
+  .gantt-week-slot.today-slot {
+    background: rgba(99, 102, 241, 0.03);
+  }
+  .gantt-week-slot.today-slot::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: calc(100% + 16px);
+    border-left: 2px dashed var(--accent);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Absolute bar positioning over the week slots */
+  .bars-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+  }
+
+  .gantt-bar {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 26px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    pointer-events: auto;
+    cursor: pointer;
+    transition: filter 0.15s, box-shadow 0.15s;
+    border: 1px solid transparent;
+  }
+  .gantt-bar:hover {
+    filter: brightness(0.95);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 5;
+  }
+
+  /* Bar stacked = offset up */
+  .gantt-bar.stacked {
+    top: calc(50% - 15px);
+  }
+  .gantt-bar.stacked-2 {
+    top: calc(50% + 2px);
+    height: 22px;
+    font-size: 10px;
+  }
+
+  .bar-analyst { background: #eef2ff; border-color: #c7d2fe; color: var(--accent-text); }
+  .bar-dev { background: var(--emerald-bg); border-color: #a7f3d0; color: #065f46; }
+  .bar-qa { background: var(--amber-bg); border-color: #fde68a; color: #92400e; }
+  .bar-ope { background: var(--violet-bg); border-color: #ddd6fe; color: #5b21b6; }
+  .bar-multi { background: #f0f9ff; border-color: #bae6fd; color: #075985; }
+
+  .bar-key {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0,0,0,0.08);
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-right: 5px;
+    flex-shrink: 0;
+  }
+  .bar-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Today label */
+  .today-label {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 0 0 4px 4px;
+    white-space: nowrap;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* Overload row banner */
+  .overload-banner {
+    width: 100%;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--danger);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Load bar under employee */
+  .load-bar-wrap {
+    width: 100%;
+    height: 3px;
+    background: var(--border-light);
+    border-radius: 2px;
+    margin-top: 3px;
+    overflow: hidden;
+  }
+  .load-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+  .load-normal { background: var(--success); }
+  .load-warn { background: var(--warning); }
+  .load-over { background: var(--danger); }
+
+  /* ─── Scrollbar helpers ─── */
+  .filter-group-body .check-list-scroll {
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .filter-group-body .check-list-scroll::-webkit-scrollbar { width: 3px; }
+  .filter-group-body .check-list-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ─── Responsive note ─── */
+  @media (max-width: 900px) {
+    .sidebar { width: 240px; }
+    .gantt-label-col { width: 180px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ═══ TOPBAR ════════════════════════════════════════════════ -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="logo-dot">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      JiraAnalysis
+    </div>
+    <div class="topbar-crumb">
+      <span>Планирование</span>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-active">Сценарий: Q3 2026 plan</span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-scenario">
+      <div class="badge-dot"></div>
+      Черновик · Команда 1С (ERP - Товарный учет)
+    </div>
+  </div>
+
+  <!-- ═══ BODY ════════════════════════════════════════════════ -->
+  <div class="body">
+
+    <!-- ═══ LEFT SIDEBAR ═══════════════════════════════════════ -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-new-view">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Новый вид
+        </button>
+      </div>
+
+      <div class="sidebar-scroll">
+
+        <!-- Saved Views -->
+        <div class="section-header">
+          <span class="section-title">Сохранённые виды</span>
+          <svg class="section-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+
+        <div class="view-item active">
+          <svg class="view-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="view-name">Мой Q3 черновик</span>
+          <div class="view-actions">
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="view-item">
+          <svg class="view-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span class="view-name">Перегруженные ≥110%</span>
+          <div class="view-actions">
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="view-item">
+          <svg class="view-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="view-name">Только аналитики</span>
+          <div class="view-actions">
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="view-item">
+          <svg class="view-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span class="view-name">По командам — все 1С</span>
+          <div class="view-actions">
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="view-item">
+          <svg class="view-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="view-name">Q2 утверждённый</span>
+          <div class="view-actions">
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="view-item">
+          <svg class="view-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="view-name">Внешний QA</span>
+          <div class="view-actions">
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div class="view-action-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters section -->
+        <div class="section-header" style="margin-top:4px;">
+          <span class="section-title">Фильтры</span>
+          <svg class="section-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+
+        <!-- Project filter -->
+        <div class="filter-group">
+          <div class="filter-group-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span class="filter-group-title">Проект</span>
+            <span class="filter-group-count">2 из 5</span>
+            <svg class="filter-group-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="filter-group-body">
+            <div class="check-item checked">
+              <div class="check-box"></div>
+              <span class="check-label"><span class="check-key-badge">OS</span> 1С</span>
+              <span class="check-count">75 142</span>
+            </div>
+            <div class="check-item checked">
+              <div class="check-box"></div>
+              <span class="check-label"><span class="check-key-badge">PMD</span> Project Office</span>
+              <span class="check-count">28 620</span>
+            </div>
+            <div class="check-item">
+              <div class="check-box"></div>
+              <span class="check-label"><span class="check-key-badge">PRJ</span> All Projects</span>
+              <span class="check-count">7 460</span>
+            </div>
+            <div class="check-item">
+              <div class="check-box"></div>
+              <span class="check-label"><span class="check-key-badge">AD</span> Операционная</span>
+              <span class="check-count">5 597</span>
+            </div>
+            <div class="check-item">
+              <div class="check-box"></div>
+              <span class="check-label"><span class="check-key-badge">RFA</span> Предпроекты</span>
+              <span class="check-count">2 583</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee filter -->
+        <div class="filter-group">
+          <div class="filter-group-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="filter-group-title">Сотрудник</span>
+            <span class="filter-group-count">10</span>
+            <svg class="filter-group-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="filter-group-body">
+            <div class="filter-search">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Найти сотрудника...">
+            </div>
+            <div class="check-list-scroll">
+              <div class="check-item checked">
+                <div class="check-box"></div>
+                <span class="check-label">Медведева Надежда В.</span>
+              </div>
+              <div class="check-item">
+                <div class="check-box"></div>
+                <span class="check-label">Невзоров Кирилл А.</span>
+              </div>
+              <div class="check-item">
+                <div class="check-box"></div>
+                <span class="check-label">Самородский Иван П.</span>
+              </div>
+              <div class="check-item">
+                <div class="check-box"></div>
+                <span class="check-label">Нелюбин Андрей А.</span>
+              </div>
+              <div class="check-item">
+                <div class="check-box"></div>
+                <span class="check-label">Сергеева Ольга Ю.</span>
+              </div>
+              <div class="check-item">
+                <div class="check-box"></div>
+                <span class="check-label">Дернина Екатерина</span>
+              </div>
+              <div class="check-item">
+                <div class="check-box"></div>
+                <span class="check-label">Медведев Дмитрий В.</span>
+              </div>
+              <div class="check-item">
+                <div class="check-box"></div>
+                <span class="check-label">Гультяева Галина</span>
+              </div>
+              <div class="check-item">
+                <div class="check-box"></div>
+                <span class="check-label">Веприцкая Мария</span>
+              </div>
+              <div class="check-item">
+                <div class="check-box"></div>
+                <span class="check-label">Курлов Дмитрий</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Role filter -->
+        <div class="filter-group">
+          <div class="filter-group-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <span class="filter-group-title">Роль</span>
+            <span class="filter-group-count">1 из 4</span>
+            <svg class="filter-group-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="filter-group-body">
+            <div class="check-item checked">
+              <div class="check-box"></div>
+              <span class="check-label" style="display:flex;align-items:center;gap:6px;">
+                <span style="width:8px;height:8px;border-radius:2px;background:#6366f1;flex-shrink:0;"></span>
+                Аналитик
+              </span>
+              <span class="check-count">2</span>
+            </div>
+            <div class="check-item">
+              <div class="check-box"></div>
+              <span class="check-label" style="display:flex;align-items:center;gap:6px;">
+                <span style="width:8px;height:8px;border-radius:2px;background:#10b981;flex-shrink:0;"></span>
+                Разработчик
+              </span>
+              <span class="check-count">3</span>
+            </div>
+            <div class="check-item">
+              <div class="check-box"></div>
+              <span class="check-label" style="display:flex;align-items:center;gap:6px;">
+                <span style="width:8px;height:8px;border-radius:2px;background:#f59e0b;flex-shrink:0;"></span>
+                QA
+              </span>
+              <span class="check-count">—</span>
+            </div>
+            <div class="check-item">
+              <div class="check-box"></div>
+              <span class="check-label" style="display:flex;align-items:center;gap:6px;">
+                <span style="width:8px;height:8px;border-radius:2px;background:#8b5cf6;flex-shrink:0;"></span>
+                ОПЭ
+              </span>
+              <span class="check-count">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Date range filter -->
+        <div class="filter-group">
+          <div class="filter-group-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span class="filter-group-title">Период</span>
+            <span class="filter-group-count">Q3 2026</span>
+            <svg class="filter-group-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="filter-group-body">
+            <div class="date-range-mock">
+              <div class="date-range-row">
+                <span class="date-range-label">С</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+                <span class="date-range-val">1 июл 2026</span>
+              </div>
+              <div class="date-range-row">
+                <span class="date-range-label">По</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+                <span class="date-range-val">30 сен 2026</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status filter -->
+        <div class="filter-group">
+          <div class="filter-group-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span class="filter-group-title">Статус</span>
+            <svg class="filter-group-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="filter-group-body">
+            <div class="status-chips">
+              <div class="status-chip active">
+                <span class="chip-dot" style="background:var(--warning)"></span>
+                Черновик
+              </div>
+              <div class="status-chip">
+                <span class="chip-dot" style="background:var(--success)"></span>
+                Утверждён
+              </div>
+              <div class="status-chip">
+                <span class="chip-dot" style="background:var(--accent)"></span>
+                В работе
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /sidebar-scroll -->
+
+      <div class="sidebar-footer">
+        <div class="reset-link">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3"/></svg>
+          Сбросить все фильтры
+        </div>
+      </div>
+    </div><!-- /sidebar -->
+
+    <!-- ═══ MAIN ═════════════════════════════════════════════ -->
+    <div class="main">
+
+      <!-- Filter chips bar -->
+      <div class="filterbar">
+        <span class="filter-chips-label">Вид:</span>
+
+        <div class="active-chip">
+          <span class="chip-key">Проект</span>
+          <span class="chip-val">OS, PMD</span>
+          <span class="chip-remove">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span>
+        </div>
+
+        <div class="active-chip">
+          <span class="chip-key">Роль</span>
+          <span class="chip-val">Аналитик</span>
+          <span class="chip-remove">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span>
+        </div>
+
+        <div class="active-chip">
+          <span class="chip-key">Статус</span>
+          <span class="chip-val">Черновик</span>
+          <span class="chip-remove">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span>
+        </div>
+
+        <div class="active-chip">
+          <span class="chip-key">Период</span>
+          <span class="chip-val">Q3 2026</span>
+          <span class="chip-remove">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span>
+        </div>
+
+        <div class="filterbar-spacer"></div>
+
+        <!-- View switcher -->
+        <div class="view-switcher">
+          <button class="view-switcher-btn active">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4"/><rect x="3" y="10" width="18" height="4"/><rect x="3" y="16" width="18" height="4"/></svg>
+            Gantt
+          </button>
+          <button class="view-switcher-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Список
+          </button>
+          <button class="view-switcher-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Тепловая
+          </button>
+        </div>
+
+        <!-- Zoom -->
+        <div class="zoom-group">
+          <button class="zoom-btn" title="Уменьшить">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <button class="zoom-btn" title="Увеличить">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+
+        <!-- Sort -->
+        <button class="sort-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/></svg>
+          Сортировка
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+
+        <!-- Search -->
+        <button class="search-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Поиск по задачам...
+        </button>
+      </div>
+
+      <!-- ═══ GANTT ══════════════════════════════════════════ -->
+      <div class="gantt-container">
+        <div class="gantt-table">
+
+          <!-- Gantt header row -->
+          <div class="gantt-header">
+            <div class="gantt-label-col">
+              <span class="gantt-label-inner">Сотрудник / загрузка</span>
+            </div>
+            <div class="gantt-timeline">
+              <!-- Month groupings -->
+              <div class="gantt-months">
+                <!-- Jul: 5 weeks (W27-W31), Aug: 4 weeks (W32-W35), Sep: 4 weeks (W36-W39) -->
+                <div class="gantt-month" style="width:400px; border-right:2px solid var(--border);">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px;color:var(--accent)"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Июль 2026
+                </div>
+                <div class="gantt-month" style="width:320px; border-right:2px solid var(--border);">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px;color:var(--success)"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Август 2026
+                </div>
+                <div class="gantt-month" style="width:320px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px;color:var(--warning)"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Сентябрь 2026
+                </div>
+              </div>
+              <!-- Week numbers -->
+              <div class="gantt-weeks">
+                <div class="gantt-week"><div class="week-date">30 июн</div><div class="week-num">нед 27</div></div>
+                <div class="gantt-week"><div class="week-date">7 июл</div><div class="week-num">нед 28</div></div>
+                <div class="gantt-week"><div class="week-date">14 июл</div><div class="week-num">нед 29</div></div>
+                <div class="gantt-week"><div class="week-date">21 июл</div><div class="week-num">нед 30</div></div>
+                <div class="gantt-week" style="border-right:2px solid var(--border)"><div class="week-date">28 июл</div><div class="week-num">нед 31</div></div>
+                <div class="gantt-week"><div class="week-date">4 авг</div><div class="week-num">нед 32</div></div>
+                <div class="gantt-week today-col">
+                  <div class="week-date" style="position:relative">
+                    11 авг
+                    <div class="today-label">сегодня</div>
+                  </div>
+                  <div class="week-num">нед 33</div>
+                </div>
+                <div class="gantt-week"><div class="week-date">18 авг</div><div class="week-num">нед 34</div></div>
+                <div class="gantt-week" style="border-right:2px solid var(--border)"><div class="week-date">25 авг</div><div class="week-num">нед 35</div></div>
+                <div class="gantt-week"><div class="week-date">1 сен</div><div class="week-num">нед 36</div></div>
+                <div class="gantt-week"><div class="week-date">8 сен</div><div class="week-num">нед 37</div></div>
+                <div class="gantt-week"><div class="week-date">15 сен</div><div class="week-num">нед 38</div></div>
+                <div class="gantt-week"><div class="week-date">22 сен</div><div class="week-num">нед 39</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ──────────────────────────────────────────────────
+               GANTT ROWS — 10 employees
+          ────────────────────────────────────────────────── -->
+
+          <!-- Row 1: Медведева Надежда — consultant, Team 1С, 721h -->
+          <div class="gantt-row">
+            <div class="gantt-label-col">
+              <div class="employee-avatar" style="background: linear-gradient(135deg,#6366f1,#8b5cf6)">МН</div>
+              <div class="employee-info">
+                <div class="employee-name">Медведева Надежда В.</div>
+                <div class="employee-role">Консультант · 1С (ERP)</div>
+                <div class="load-bar-wrap"><div class="load-bar-fill load-warn" style="width:85%"></div></div>
+              </div>
+            </div>
+            <div class="gantt-bars" style="position:relative">
+              <!-- Week slots -->
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot today-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <!-- Bars -->
+              <div class="bars-overlay">
+                <!-- Биметалл Усреднение: OS, weeks 1-4 (0→320px) -->
+                <div class="gantt-bar bar-analyst stacked" style="left:8px;width:302px;" title="Биметалл Усреднение">
+                  <span class="bar-key">OS</span><span class="bar-title">Биметалл Усреднение</span>
+                </div>
+                <!-- Анализ задачи: PMD, weeks 5-8 (400→640px) -->
+                <div class="gantt-bar bar-analyst stacked-2" style="left:408px;width:222px;" title="Анализ задачи и описание БФТ чек лист">
+                  <span class="bar-key">PMD</span><span class="bar-title">Анализ задачи и описание БФТ чек лист</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Невзоров Кирилл — Ecom, 904h → OVERLOAD -->
+          <div class="gantt-row overload">
+            <div class="gantt-label-col">
+              <div class="employee-avatar" style="background: linear-gradient(135deg,#ef4444,#f97316)">НК</div>
+              <div class="employee-info">
+                <div class="employee-name" style="display:flex;align-items:center;gap:5px;">
+                  Невзоров Кирилл А.
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--danger);flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div class="employee-role" style="color:var(--danger);font-weight:500;">Перегрузка 117% · Ecom (Core)</div>
+                <div class="load-bar-wrap"><div class="load-bar-fill load-over" style="width:100%"></div></div>
+              </div>
+            </div>
+            <div class="gantt-bars" style="position:relative">
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot today-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="bars-overlay">
+                <!-- Обмен Биметалл: OS, weeks 0-6 (0→480) -->
+                <div class="gantt-bar bar-dev stacked" style="left:8px;width:462px;" title="Обмен Биметалл, Получение услуг по переработке">
+                  <span class="bar-key">OS</span><span class="bar-title">Обмен Биметалл, Получение услуг</span>
+                </div>
+                <!-- Раскрепка: PRJ, weeks 3-10 (240→800) -->
+                <div class="gantt-bar bar-dev stacked-2" style="left:248px;width:542px;" title="Раскрепка. Получение стоимости металла">
+                  <span class="bar-key">PRJ</span><span class="bar-title">Раскрепка. Получение стоимости металла</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 3: Самородский Иван — Ecom, 768h -->
+          <div class="gantt-row">
+            <div class="gantt-label-col">
+              <div class="employee-avatar" style="background: linear-gradient(135deg,#0ea5e9,#6366f1)">СИ</div>
+              <div class="employee-info">
+                <div class="employee-name">Самородский Иван П.</div>
+                <div class="employee-role">Разработчик · Ecom (Core)</div>
+                <div class="load-bar-wrap"><div class="load-bar-fill load-normal" style="width:91%"></div></div>
+              </div>
+            </div>
+            <div class="gantt-bars" style="position:relative">
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot today-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="bars-overlay">
+                <!-- Чек-лист закрытия месяца ч1: OS, weeks 1-5 (80→400) -->
+                <div class="gantt-bar bar-dev" style="left:88px;width:302px;" title="Чек-лист закрытия месяца Техническое задание ч.1">
+                  <span class="bar-key">OS</span><span class="bar-title">Чек-лист закрытия месяца ч.1</span>
+                </div>
+                <!-- Чек-лист ч2 разработки: OS, weeks 6-11 (480→880) -->
+                <div class="gantt-bar bar-dev" style="left:488px;width:382px;" title="Чек-лист закрытия месяца Доработки 1+2">
+                  <span class="bar-key">OS</span><span class="bar-title">Чек-лист закрытия месяца Доработки</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 4: Нелюбин Андрей — Ecom, 713h -->
+          <div class="gantt-row">
+            <div class="gantt-label-col">
+              <div class="employee-avatar" style="background: linear-gradient(135deg,#10b981,#0ea5e9)">НА</div>
+              <div class="employee-info">
+                <div class="employee-name">Нелюбин Андрей А.</div>
+                <div class="employee-role">Разработчик · Ecom (Core)</div>
+                <div class="load-bar-wrap"><div class="load-bar-fill load-normal" style="width:85%"></div></div>
+              </div>
+            </div>
+            <div class="gantt-bars" style="position:relative">
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot today-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="bars-overlay">
+                <!-- Биметалл Ремонтные: PMD, weeks 0-3 (0→240) -->
+                <div class="gantt-bar bar-dev stacked" style="left:8px;width:222px;" title="Биметалл Ремонтные заказы">
+                  <span class="bar-key">PMD</span><span class="bar-title">Биметалл Ремонтные заказы</span>
+                </div>
+                <!-- Тестирование свертки: PMD, weeks 2-6 (160→480) -->
+                <div class="gantt-bar bar-qa stacked-2" style="left:168px;width:302px;" title="Тестирование документов в базе после свертки">
+                  <span class="bar-key">PMD</span><span class="bar-title">Тестирование документов после свертки</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 5: Сергеева Ольга — 1С ЭДО, 700h -->
+          <div class="gantt-row">
+            <div class="gantt-label-col">
+              <div class="employee-avatar" style="background: linear-gradient(135deg,#f59e0b,#f97316)">СО</div>
+              <div class="employee-info">
+                <div class="employee-name">Сергеева Ольга Ю.</div>
+                <div class="employee-role">— · 1С (ЭДО)</div>
+                <div class="load-bar-wrap"><div class="load-bar-fill load-normal" style="width:83%"></div></div>
+              </div>
+            </div>
+            <div class="gantt-bars" style="position:relative">
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot today-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="bars-overlay">
+                <!-- Провести тестирование ИБ ЕРП: OS, weeks 3-9 (240→720) -->
+                <div class="gantt-bar bar-qa" style="left:248px;width:462px;" title="Провести тестирование тестовой ИБ ЕРП после свертки">
+                  <span class="bar-key">OS</span><span class="bar-title">Тестирование ИБ ЕРП после свертки</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 6: Дернина Екатерина — HR и Кадры, 696h -->
+          <div class="gantt-row">
+            <div class="gantt-label-col">
+              <div class="employee-avatar" style="background: linear-gradient(135deg,#8b5cf6,#6366f1)">ДЕ</div>
+              <div class="employee-info">
+                <div class="employee-name">Дернина Екатерина</div>
+                <div class="employee-role">— · 1С (HR и Кадры)</div>
+                <div class="load-bar-wrap"><div class="load-bar-fill load-normal" style="width:82%"></div></div>
+              </div>
+            </div>
+            <div class="gantt-bars" style="position:relative">
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot today-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="bars-overlay">
+                <!-- Не работает расчет себестоимости: OS, weeks 0-5 (0→400) -->
+                <div class="gantt-bar bar-analyst stacked" style="left:8px;width:382px;" title="Не работает расчет себестоимости для материалов">
+                  <span class="bar-key">OS</span><span class="bar-title">Расчет себестоимости — Акты Разбраковки</span>
+                </div>
+                <!-- Акт разбраковки: OS, weeks 4-8 (320→640) -->
+                <div class="gantt-bar bar-ope stacked-2" style="left:328px;width:302px;" title="Акт разбраковки УПП-ЕРП">
+                  <span class="bar-key">OS</span><span class="bar-title">Акт разбраковки УПП-ЕРП</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 7: Медведев Дмитрий — Ecom, 687h -->
+          <div class="gantt-row">
+            <div class="gantt-label-col">
+              <div class="employee-avatar" style="background: linear-gradient(135deg,#06b6d4,#0ea5e9)">МД</div>
+              <div class="employee-info">
+                <div class="employee-name">Медведев Дмитрий В.</div>
+                <div class="employee-role">Разработчик · Ecom (Core)</div>
+                <div class="load-bar-wrap"><div class="load-bar-fill load-normal" style="width:81%"></div></div>
+              </div>
+            </div>
+            <div class="gantt-bars" style="position:relative">
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot today-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="bars-overlay">
+                <!-- Не работают кнопки подбора партии: OS, weeks 2-7 (160→560) -->
+                <div class="gantt-bar bar-dev" style="left:168px;width:382px;" title="Не работают кнопки подбора партии и цены">
+                  <span class="bar-key">OS</span><span class="bar-title">Кнопки подбора партии и цены</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 8: Гультяева Галина — HR и Кадры, 686h -->
+          <div class="gantt-row">
+            <div class="gantt-label-col">
+              <div class="employee-avatar" style="background: linear-gradient(135deg,#ec4899,#f97316)">ГГ</div>
+              <div class="employee-info">
+                <div class="employee-name">Гультяева Галина</div>
+                <div class="employee-role">— · 1С (HR и Кадры)</div>
+                <div class="load-bar-wrap"><div class="load-bar-fill load-normal" style="width:81%"></div></div>
+              </div>
+            </div>
+            <div class="gantt-bars" style="position:relative">
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot today-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="bars-overlay">
+                <!-- Биметалл Усреднение подбор группы затрат: OS, weeks 5-12 (400→960) -->
+                <div class="gantt-bar bar-analyst" style="left:408px;width:542px;" title="Биметалл Усреднение, подбор группы затрат">
+                  <span class="bar-key">OS</span><span class="bar-title">Биметалл Усреднение, подбор группы затрат</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 9: Веприцкая Мария — HR и Кадры, 679h — overload -->
+          <div class="gantt-row overload">
+            <div class="gantt-label-col">
+              <div class="employee-avatar" style="background: linear-gradient(135deg,#ef4444,#ec4899)">ВМ</div>
+              <div class="employee-info">
+                <div class="employee-name" style="display:flex;align-items:center;gap:5px;">
+                  Веприцкая Мария
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--danger);flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div class="employee-role" style="color:var(--danger);font-weight:500;">Перегрузка 112% · 1С (HR и Кадры)</div>
+                <div class="load-bar-wrap"><div class="load-bar-fill load-over" style="width:100%"></div></div>
+              </div>
+            </div>
+            <div class="gantt-bars" style="position:relative">
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot today-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="bars-overlay">
+                <!-- Белая раскрепка: PMD, weeks 0-4 -->
+                <div class="gantt-bar bar-analyst stacked" style="left:8px;width:302px;" title="Белая раскрепка. Получение стоимости металла">
+                  <span class="bar-key">PMD</span><span class="bar-title">Белая раскрепка. Стоимость металла</span>
+                </div>
+                <!-- Прочее оприходование: OS, weeks 3-9 -->
+                <div class="gantt-bar bar-ope stacked-2" style="left:248px;width:462px;" title="Прочее оприходование товаров">
+                  <span class="bar-key">OS</span><span class="bar-title">Прочее оприходование товаров</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 10: Курлов Дмитрий — IT Технологическое, 671h -->
+          <div class="gantt-row">
+            <div class="gantt-label-col">
+              <div class="employee-avatar" style="background: linear-gradient(135deg,#475569,#334155)">КД</div>
+              <div class="employee-info">
+                <div class="employee-name">Курлов Дмитрий</div>
+                <div class="employee-role">— · IT (Технологическое)</div>
+                <div class="load-bar-wrap"><div class="load-bar-fill load-normal" style="width:79%"></div></div>
+              </div>
+            </div>
+            <div class="gantt-bars" style="position:relative">
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot today-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="gantt-week-slot"></div>
+              <div class="bars-overlay">
+                <!-- Чек-лист подзадача разработки 2: OS, weeks 1-6 (80→480) -->
+                <div class="gantt-bar bar-multi" style="left:88px;width:382px;" title="Чек-лист подзадача разработки 2">
+                  <span class="bar-key">OS</span><span class="bar-title">Чек-лист подзадача разработки 2</span>
+                </div>
+                <!-- Подзадача разработки 3: OS, weeks 7-12 (560→960) -->
+                <div class="gantt-bar bar-multi" style="left:568px;width:382px;" title="Чек-лист подзадача разработки 3">
+                  <span class="bar-key">OS</span><span class="bar-title">Чек-лист подзадача разработки 3</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /gantt-table -->
+      </div><!-- /gantt-container -->
+
+    </div><!-- /main -->
+  </div><!-- /body -->
+</div><!-- /shell -->
+
+<script>
+// Chip removal
+document.querySelectorAll('.chip-remove').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const chip = btn.closest('.active-chip');
+    chip.style.transition = 'opacity 0.15s, transform 0.15s';
+    chip.style.opacity = '0';
+    chip.style.transform = 'scale(0.85)';
+    setTimeout(() => chip.remove(), 150);
+  });
+});
+
+// Collapsible filter groups
+document.querySelectorAll('.filter-group-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.closest('.filter-group').classList.toggle('collapsed');
+  });
+});
+
+// Check item toggle
+document.querySelectorAll('.check-item').forEach(item => {
+  item.addEventListener('click', () => {
+    item.classList.toggle('checked');
+    // update count badge
+    const group = item.closest('.filter-group');
+    if (group) {
+      const total = group.querySelectorAll('.check-item').length;
+      const checked = group.querySelectorAll('.check-item.checked').length;
+      const badge = group.querySelector('.filter-group-count');
+      if (badge && badge.textContent.match(/\d+ из \d+/)) {
+        badge.textContent = checked + ' из ' + total;
+      }
+    }
+  });
+});
+
+// Status chip toggle
+document.querySelectorAll('.status-chip').forEach(chip => {
+  chip.addEventListener('click', () => chip.classList.toggle('active'));
+});
+
+// View item active
+document.querySelectorAll('.view-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.view-item').forEach(v => v.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+
+// View switcher
+document.querySelectorAll('.view-switcher-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.view-switcher-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ресурсное планирование — варианты стрелок</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-page: #0d1c33;
+  --bg-gantt: #0a1628;
+  --bg-sidebar: #091527;
+  --border: #1e3356;
+  --text: #e8f0fa;
+  --text-sec: #8faec8;
+  --accent: #f5a524;
+  --cyan: #00c9c8;
+  --col-w: 60px;
+  --row-h: 32px;
+  --bar-h: 18px;
+  --left-w: 540px;
+  --num-cols: 14;
+}
+
+body {
+  background: var(--bg-page);
+  color: var(--text);
+  font-family: -apple-system, 'Segoe UI', Inter, sans-serif;
+  font-size: 13px;
+  min-width: 1400px;
+  padding-bottom: 60px;
+}
+
+/* ===== PAGE HEADER ===== */
+.page-header {
+  padding: 18px 28px 0;
+}
+.page-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.back-arrow {
+  color: var(--text-sec);
+  font-size: 18px;
+  cursor: pointer;
+}
+.page-title h1 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--cyan);
+  color: #0d1c33;
+  font-weight: 700;
+  border-color: var(--cyan);
+}
+.btn-primary:hover { background: #00e6e5; }
+.divider-cyan {
+  height: 1px;
+  background: rgba(0,201,200,0.4);
+  margin-bottom: 10px;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+}
+.scenario-select {
+  background: #071020;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  max-width: 300px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-green { background: rgba(82,211,100,0.18); color: #52d364; border: 1px solid rgba(82,211,100,0.35); }
+.badge-orange { background: rgba(232,134,74,0.2); color: #e8864a; border: 1px solid rgba(232,134,74,0.4); }
+.badge-red { background: rgba(232,93,74,0.2); color: #e85d4a; border: 1px solid rgba(232,93,74,0.4); }
+.spacer { flex: 1; }
+.toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--text-sec);
+}
+.toggle-switch {
+  width: 28px;
+  height: 15px;
+  border-radius: 8px;
+  background: var(--cyan);
+  position: relative;
+  cursor: pointer;
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: #0d1c33;
+  top: 2px; right: 2px;
+}
+.view-btns {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.view-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--text-sec);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  border-right: 1px solid var(--border);
+}
+.view-btn:last-child { border-right: none; }
+.view-btn.active { background: rgba(0,201,200,0.15); color: var(--cyan); }
+.conflicts-bar {
+  padding: 6px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-sec);
+}
+.conflict-toggle { cursor: pointer; }
+.conflict-toggle::before { content: '▶ '; font-size: 9px; }
+
+/* ===== VARIANT SECTIONS ===== */
+.variant-section {
+  padding: 20px 28px 10px;
+}
+.variant-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.variant-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(122,167,255,0.15);
+  border: 1px solid rgba(122,167,255,0.4);
+  color: #a3c4ff;
+}
+.variant-desc {
+  font-size: 11px;
+  color: var(--text-sec);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 10px;
+}
+
+/* ===== GANTT CHART ===== */
+.gantt-wrap {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-gantt);
+  position: relative;
+  margin-top: 8px;
+}
+
+/* LEFT SIDEBAR */
+.gantt-left {
+  width: var(--left-w);
+  min-width: var(--left-w);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.gantt-left-header {
+  height: 52px;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 12px 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-sec);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--bg-gantt);
+}
+
+/* INITIATIVE ROW */
+.init-row {
+  background: rgba(0,201,200,0.10);
+  border-bottom: 2px solid rgba(0,201,200,0.45);
+  padding: 0 12px;
+  height: var(--row-h);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+.init-key {
+  font-size: 10px;
+  color: var(--cyan);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.init-name {
+  font-size: 11px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+.init-hours {
+  font-size: 10px;
+  color: var(--text-sec);
+  white-space: nowrap;
+}
+.init-assignee {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* PHASE ROW */
+.phase-row {
+  border-bottom: 1px solid var(--border);
+  height: var(--row-h);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 6px;
+  overflow: hidden;
+}
+.phase-label {
+  font-size: 10px;
+  color: var(--text-sec);
+  white-space: nowrap;
+  min-width: 120px;
+}
+.phase-hours {
+  font-size: 10px;
+  color: var(--text-sec);
+}
+
+/* AVATAR */
+.avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.avatar-kn { background: #00c9c8; }
+.avatar-pi { background: #3a7bff; }
+.avatar-qa { background: #f59e0b; }
+
+/* RIGHT GANTT GRID */
+.gantt-right {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-width: calc(var(--num-cols) * var(--col-w));
+}
+.gantt-header {
+  height: 52px;
+  background: var(--bg-gantt);
+  border-bottom: 1px solid var(--border);
+}
+.months-row {
+  height: 24px;
+  display: grid;
+  grid-template-columns: repeat(var(--num-cols), var(--col-w));
+  border-bottom: 1px solid var(--border);
+}
+.month-cell {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-sec);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-right: 1px solid var(--border);
+}
+.weeks-row {
+  height: 28px;
+  display: grid;
+  grid-template-columns: repeat(var(--num-cols), var(--col-w));
+}
+.week-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text-sec);
+  border-right: 1px solid rgba(30,51,86,0.6);
+}
+
+/* GANTT ROWS */
+.gantt-body {
+  position: relative;
+  overflow: visible;
+  min-width: calc(var(--num-cols) * var(--col-w));
+}
+.gantt-row {
+  height: var(--row-h);
+  border-bottom: 1px solid rgba(30,51,86,0.5);
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--num-cols), var(--col-w));
+  align-items: center;
+}
+.gantt-row.init-bg {
+  background: rgba(0,201,200,0.04);
+  border-bottom: 2px solid rgba(0,201,200,0.2);
+}
+.gantt-col-line {
+  border-right: 1px solid rgba(30,51,86,0.4);
+  height: 100%;
+}
+
+/* BARS */
+.bar {
+  position: absolute;
+  height: var(--bar-h);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding-left: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #0d1c33;
+  white-space: nowrap;
+  overflow: hidden;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.bar-analyst { background: rgba(0,201,200,0.75); }
+.bar-dev { background: rgba(42,127,191,0.75); }
+.bar-qa { background: rgba(232,134,74,0.75); }
+.bar-opo { background: rgba(82,211,100,0.75); }
+.bar-critical { outline: 1.5px solid #e85d4a; outline-offset: 1px; }
+
+/* TODAY LINE */
+.today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background: rgba(0,201,200,0.6);
+  z-index: 5;
+  pointer-events: none;
+}
+.today-label {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+/* SVG OVERLAY */
+.arrows-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  overflow: visible;
+}
+
+/* ===== COMPARISON TABLE ===== */
+.compare-section {
+  padding: 30px 28px;
+}
+.compare-section h2 {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.compare-table th {
+  background: rgba(0,201,200,0.1);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  text-align: left;
+  color: var(--cyan);
+  font-weight: 700;
+  font-size: 13px;
+}
+.compare-table td {
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  vertical-align: top;
+  color: var(--text-sec);
+  line-height: 1.5;
+}
+.compare-table td.variant-name {
+  color: var(--text);
+  font-weight: 700;
+  background: rgba(255,255,255,0.03);
+  width: 160px;
+}
+.pro { color: #52d364; }
+.con { color: #e85d4a; }
+.recommend {
+  margin-top: 16px;
+  padding: 12px 18px;
+  background: rgba(0,201,200,0.08);
+  border: 1px solid rgba(0,201,200,0.3);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text);
+}
+.recommend strong { color: var(--cyan); }
+
+/* Animation for variant 3 */
+@keyframes rpFlow {
+  to { stroke-dashoffset: -24; }
+}
+.rp-flow {
+  animation: rpFlow 1.2s linear infinite;
+}
+
+/* Variant section separator */
+.variant-section + .variant-section {
+  border-top: 1px solid rgba(30,51,86,0.6);
+}
+
+/* Legend */
+.arrow-legend {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 6px;
+  padding: 4px 0;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text-sec);
+}
+.legend-line {
+  width: 32px;
+  height: 0;
+  border: none;
+  position: relative;
+}
+.legend-line svg {
+  position: absolute;
+  top: -6px;
+  left: 0;
+}
+</style>
+</head>
+<body>
+
+<!-- ===== PAGE HEADER (once) ===== -->
+<div class="page-header">
+  <div class="page-title-row">
+    <div class="page-title">
+      <span class="back-arrow">←</span>
+      <h1>Ресурсное планирование</h1>
+    </div>
+    <button class="btn">⚙ Заблокированные периоды</button>
+  </div>
+  <div class="divider-cyan"></div>
+
+  <div class="toolbar">
+    <select class="scenario-select">
+      <option>Q2 2026 — Команда 1С (ERP - Товарный учет) [ready]</option>
+    </select>
+    <button class="btn btn-primary">📊 Распределить</button>
+    <span class="badge badge-green">Готово</span>
+    <span class="badge badge-green">Перегрузки: 0.6%</span>
+    <span class="badge badge-green">Просрочки: 0</span>
+    <span style="font-size:12px;color:var(--text);">Утилизация: 51.97%</span>
+    <button class="btn">Сделать копию</button>
+    <div class="spacer"></div>
+    <div class="view-btns">
+      <div class="view-btn">День</div>
+      <div class="view-btn active">Неделя</div>
+      <div class="view-btn">Месяц</div>
+    </div>
+    <div class="toggle-group">Связи <div class="toggle-switch"></div></div>
+    <div class="toggle-group">Эстафета <div class="toggle-switch"></div></div>
+    <div class="toggle-group">Только рабочие</div>
+    <button class="btn">📈 Портфель</button>
+    <button class="btn">📅 Фазы</button>
+    <button class="btn">👥 Ресурсы</button>
+  </div>
+
+  <div class="conflicts-bar">
+    <span class="conflict-toggle">Конфликты</span>
+    <span class="badge badge-red">1 критических</span>
+    <span class="badge badge-orange">3 предупреждений</span>
+  </div>
+</div>
+
+<!-- ===== 4 VARIANT SECTIONS ===== -->
+
+<!-- VARIANT 1 -->
+<div class="variant-section" id="v1-section">
+  <div class="variant-header">
+    <div class="variant-badge">Вариант 1: DHTMLX-style</div>
+    <div class="variant-desc">Контрастные толстые линии с тенью — максимальная читаемость зависимостей</div>
+  </div>
+  <div class="arrow-legend">
+    <div class="legend-item">
+      <svg width="40" height="12"><defs><marker id="lg1ph" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#7aa7ff"/></marker></defs><line x1="0" y1="6" x2="34" y2="6" stroke="#7aa7ff" stroke-width="2.2" marker-end="url(#lg1ph)" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.5))"/></svg>
+      Зависимость фаз
+    </div>
+    <div class="legend-item">
+      <svg width="40" height="12"><defs><marker id="lg1rl" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#1ee5d8"/></marker></defs><line x1="0" y1="6" x2="34" y2="6" stroke="#1ee5d8" stroke-width="2.2" stroke-dasharray="6 3" marker-end="url(#lg1rl)" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.5))"/></svg>
+      Эстафета ресурса
+    </div>
+  </div>
+  <div class="gantt-wrap" id="gantt1">
+    <!-- left -->
+    <div class="gantt-left" id="left1">
+      <div class="gantt-left-header">Инициатива / Фаза</div>
+      <!-- PRJ-10891 -->
+      <div class="init-row">
+        <span class="init-key">PRJ-10891</span>
+        <span class="init-name">Протестировать свёртку базы</span>
+        <span class="init-hours">120 ч</span>
+        <span class="avatar avatar-kn" title="Копышков Николай">КН</span>
+      </div>
+      <div class="phase-row">
+        <span class="phase-label">Анализ · 40 ч</span>
+        <span class="avatar avatar-kn">КН</span>
+        <span class="phase-hours" style="color:#00c9c8">Копышков Н.</span>
+      </div>
+      <div class="phase-row">
+        <span class="phase-label">Тестирование · 80 ч</span>
+        <span class="avatar avatar-qa">—</span>
+      </div>
+      <!-- ITL-304 -->
+      <div class="init-row">
+        <span class="init-key">ITL-304</span>
+        <span class="init-name" style="max-width:240px">Подсистема закрытия месяца. Чек лист</span>
+        <span class="init-hours">130 ч</span>
+        <span class="avatar avatar-kn">КН</span>
+      </div>
+      <div class="phase-row"><span class="phase-label">Анализ · 20 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Разработка · 80 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 20 ч</span><span class="avatar avatar-qa">—</span></div>
+      <div class="phase-row"><span class="phase-label">ОПЭ · Аналитик · 5 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">ОПЭ · Программист · 5 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <!-- ITL-424 -->
+      <div class="init-row">
+        <span class="init-key">ITL-424</span>
+        <span class="init-name">Наполнение чек-лист. 37 проверок</span>
+        <span class="init-hours">40 ч</span>
+        <span class="avatar avatar-kn">КН</span>
+      </div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <!-- PRJ-10892 -->
+      <div class="init-row">
+        <span class="init-key">PRJ-10892</span>
+        <span class="init-name">Сторно возврата поставщику. Обмен ЕРП</span>
+        <span class="init-hours">140 ч</span>
+        <span class="avatar avatar-kn">КН</span>
+      </div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Разработка · 80 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 20 ч</span><span class="avatar avatar-qa">—</span></div>
+    </div>
+    <!-- right -->
+    <div class="gantt-right" id="right1">
+      <div class="gantt-header">
+        <div class="months-row">
+          <div class="month-cell" style="grid-column: span 4;">АПР 2026</div>
+          <div class="month-cell" style="grid-column: span 5;">МАЙ 2026</div>
+          <div class="month-cell" style="grid-column: span 5;">ИЮН 2026</div>
+        </div>
+        <div class="weeks-row" id="weeks1">
+        </div>
+      </div>
+      <div class="gantt-body" id="body1">
+        <!-- rows with bars -->
+        <!-- PRJ-10891 init -->
+        <div class="gantt-row init-bg" data-row="init-10891"></div>
+        <div class="gantt-row" data-row="10891-analyst" data-bar='{"start":0,"dur":2,"type":"analyst","id":"b_10891_a"}'></div>
+        <div class="gantt-row" data-row="10891-qa" data-bar='{"start":0,"dur":4,"type":"qa","id":"b_10891_qa"}'></div>
+        <!-- ITL-304 init -->
+        <div class="gantt-row init-bg" data-row="init-304"></div>
+        <div class="gantt-row" data-row="304-analyst" data-bar='{"start":1,"dur":2,"type":"analyst","id":"b_304_a"}'></div>
+        <div class="gantt-row" data-row="304-dev" data-bar='{"start":3,"dur":2,"type":"dev","id":"b_304_d"}'></div>
+        <div class="gantt-row" data-row="304-qa" data-bar='{"start":4.5,"dur":0.5,"type":"qa","id":"b_304_qa"}'></div>
+        <div class="gantt-row" data-row="304-opo-a" data-bar='{"start":5.5,"dur":0.3,"type":"opo","id":"b_304_oa"}'></div>
+        <div class="gantt-row" data-row="304-opo-d" data-bar='{"start":5.5,"dur":0.3,"type":"opo","id":"b_304_od"}'></div>
+        <!-- ITL-424 init -->
+        <div class="gantt-row init-bg" data-row="init-424"></div>
+        <div class="gantt-row" data-row="424-analyst" data-bar='{"start":1,"dur":3,"type":"analyst","id":"b_424_a"}'></div>
+        <!-- PRJ-10892 init -->
+        <div class="gantt-row init-bg" data-row="init-10892"></div>
+        <div class="gantt-row" data-row="10892-analyst" data-bar='{"start":3,"dur":1.5,"type":"analyst","id":"b_10892_a"}'></div>
+        <div class="gantt-row" data-row="10892-dev" data-bar='{"start":4.5,"dur":3,"type":"dev","id":"b_10892_d","critical":true}'></div>
+        <div class="gantt-row" data-row="10892-qa" data-bar='{"start":7.5,"dur":0.7,"type":"qa","id":"b_10892_qa"}'></div>
+      </div>
+      <!-- SVG overlay will be injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT 2 -->
+<div class="variant-section" id="v2-section">
+  <div class="variant-header">
+    <div class="variant-badge">Вариант 2: Halo (двойной контур)</div>
+    <div class="variant-desc">Тёмная подложка + светлая линия — элегантно, читается на пёстром фоне</div>
+  </div>
+  <div class="arrow-legend">
+    <div class="legend-item">
+      <svg width="40" height="12"><defs><marker id="lg2ph" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#a3c4ff"/></marker></defs><line x1="0" y1="6" x2="34" y2="6" stroke="#040810" stroke-width="3.5" marker-end="url(#lg2ph)"/><line x1="0" y1="6" x2="34" y2="6" stroke="#a3c4ff" stroke-width="1.6" marker-end="url(#lg2ph)"/></svg>
+      Зависимость фаз
+    </div>
+    <div class="legend-item">
+      <svg width="40" height="12"><defs><marker id="lg2rl" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#5eead4"/></marker></defs><line x1="0" y1="6" x2="34" y2="6" stroke="#040810" stroke-width="3.5" stroke-dasharray="5 3" marker-end="url(#lg2rl)"/><line x1="0" y1="6" x2="34" y2="6" stroke="#5eead4" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#lg2rl)"/></svg>
+      Эстафета ресурса
+    </div>
+  </div>
+  <div class="gantt-wrap" id="gantt2">
+    <div class="gantt-left" id="left2">
+      <div class="gantt-left-header">Инициатива / Фаза</div>
+      <div class="init-row"><span class="init-key">PRJ-10891</span><span class="init-name">Протестировать свёртку базы</span><span class="init-hours">120 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 80 ч</span><span class="avatar avatar-qa">—</span></div>
+      <div class="init-row"><span class="init-key">ITL-304</span><span class="init-name" style="max-width:240px">Подсистема закрытия месяца. Чек лист</span><span class="init-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 20 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Разработка · 80 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 20 ч</span><span class="avatar avatar-qa">—</span></div>
+      <div class="phase-row"><span class="phase-label">ОПЭ · Аналитик · 5 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">ОПЭ · Программист · 5 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="init-row"><span class="init-key">ITL-424</span><span class="init-name">Наполнение чек-лист. 37 проверок</span><span class="init-hours">40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="init-row"><span class="init-key">PRJ-10892</span><span class="init-name">Сторно возврата поставщику. Обмен ЕРП</span><span class="init-hours">140 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Разработка · 80 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 20 ч</span><span class="avatar avatar-qa">—</span></div>
+    </div>
+    <div class="gantt-right" id="right2">
+      <div class="gantt-header">
+        <div class="months-row">
+          <div class="month-cell" style="grid-column: span 4;">АПР 2026</div>
+          <div class="month-cell" style="grid-column: span 5;">МАЙ 2026</div>
+          <div class="month-cell" style="grid-column: span 5;">ИЮН 2026</div>
+        </div>
+        <div class="weeks-row" id="weeks2"></div>
+      </div>
+      <div class="gantt-body" id="body2">
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":0,"dur":2,"type":"analyst","id":"b2_10891_a"}'></div>
+        <div class="gantt-row" data-bar='{"start":0,"dur":4,"type":"qa","id":"b2_10891_qa"}'></div>
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":1,"dur":2,"type":"analyst","id":"b2_304_a"}'></div>
+        <div class="gantt-row" data-bar='{"start":3,"dur":2,"type":"dev","id":"b2_304_d"}'></div>
+        <div class="gantt-row" data-bar='{"start":4.5,"dur":0.5,"type":"qa","id":"b2_304_qa"}'></div>
+        <div class="gantt-row" data-bar='{"start":5.5,"dur":0.3,"type":"opo","id":"b2_304_oa"}'></div>
+        <div class="gantt-row" data-bar='{"start":5.5,"dur":0.3,"type":"opo","id":"b2_304_od"}'></div>
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":1,"dur":3,"type":"analyst","id":"b2_424_a"}'></div>
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":3,"dur":1.5,"type":"analyst","id":"b2_10892_a"}'></div>
+        <div class="gantt-row" data-bar='{"start":4.5,"dur":3,"type":"dev","id":"b2_10892_d","critical":true}'></div>
+        <div class="gantt-row" data-bar='{"start":7.5,"dur":0.7,"type":"qa","id":"b2_10892_qa"}'></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT 3 -->
+<div class="variant-section" id="v3-section">
+  <div class="variant-header">
+    <div class="variant-badge">Вариант 3: Анимированный поток ресурса</div>
+    <div class="variant-desc">Эстафетные стрелки «текут» в реальном времени — сразу видно направление движения ресурса</div>
+  </div>
+  <div class="arrow-legend">
+    <div class="legend-item">
+      <svg width="40" height="12"><defs><marker id="lg3ph" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#7aa7ff"/></marker></defs><line x1="0" y1="6" x2="34" y2="6" stroke="#7aa7ff" stroke-width="2" marker-end="url(#lg3ph)"/></svg>
+      Зависимость фаз (статичная)
+    </div>
+    <div class="legend-item">
+      <svg width="40" height="12"><defs><marker id="lg3rl" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#00e6c0"/></marker></defs><line x1="0" y1="6" x2="34" y2="6" stroke="#00e6c0" stroke-width="2" stroke-dasharray="8 4" marker-end="url(#lg3rl)" class="rp-flow"/></svg>
+      Эстафета ресурса (анимирована ▶)
+    </div>
+  </div>
+  <div class="gantt-wrap" id="gantt3">
+    <div class="gantt-left" id="left3">
+      <div class="gantt-left-header">Инициатива / Фаза</div>
+      <div class="init-row"><span class="init-key">PRJ-10891</span><span class="init-name">Протестировать свёртку базы</span><span class="init-hours">120 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 80 ч</span><span class="avatar avatar-qa">—</span></div>
+      <div class="init-row"><span class="init-key">ITL-304</span><span class="init-name" style="max-width:240px">Подсистема закрытия месяца. Чек лист</span><span class="init-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 20 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Разработка · 80 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 20 ч</span><span class="avatar avatar-qa">—</span></div>
+      <div class="phase-row"><span class="phase-label">ОПЭ · Аналитик · 5 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">ОПЭ · Программист · 5 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="init-row"><span class="init-key">ITL-424</span><span class="init-name">Наполнение чек-лист. 37 проверок</span><span class="init-hours">40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="init-row"><span class="init-key">PRJ-10892</span><span class="init-name">Сторно возврата поставщику. Обмен ЕРП</span><span class="init-hours">140 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Разработка · 80 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 20 ч</span><span class="avatar avatar-qa">—</span></div>
+    </div>
+    <div class="gantt-right" id="right3">
+      <div class="gantt-header">
+        <div class="months-row">
+          <div class="month-cell" style="grid-column: span 4;">АПР 2026</div>
+          <div class="month-cell" style="grid-column: span 5;">МАЙ 2026</div>
+          <div class="month-cell" style="grid-column: span 5;">ИЮН 2026</div>
+        </div>
+        <div class="weeks-row" id="weeks3"></div>
+      </div>
+      <div class="gantt-body" id="body3">
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":0,"dur":2,"type":"analyst","id":"b3_10891_a"}'></div>
+        <div class="gantt-row" data-bar='{"start":0,"dur":4,"type":"qa","id":"b3_10891_qa"}'></div>
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":1,"dur":2,"type":"analyst","id":"b3_304_a"}'></div>
+        <div class="gantt-row" data-bar='{"start":3,"dur":2,"type":"dev","id":"b3_304_d"}'></div>
+        <div class="gantt-row" data-bar='{"start":4.5,"dur":0.5,"type":"qa","id":"b3_304_qa"}'></div>
+        <div class="gantt-row" data-bar='{"start":5.5,"dur":0.3,"type":"opo","id":"b3_304_oa"}'></div>
+        <div class="gantt-row" data-bar='{"start":5.5,"dur":0.3,"type":"opo","id":"b3_304_od"}'></div>
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":1,"dur":3,"type":"analyst","id":"b3_424_a"}'></div>
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":3,"dur":1.5,"type":"analyst","id":"b3_10892_a"}'></div>
+        <div class="gantt-row" data-bar='{"start":4.5,"dur":3,"type":"dev","id":"b3_10892_d","critical":true}'></div>
+        <div class="gantt-row" data-bar='{"start":7.5,"dur":0.7,"type":"qa","id":"b3_10892_qa"}'></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT 4 -->
+<div class="variant-section" id="v4-section">
+  <div class="variant-header">
+    <div class="variant-badge">Вариант 4: Семантический минимализм</div>
+    <div class="variant-desc">Один цвет, различие только формой — фаза=сплошная, ресурс=пунктир. Тихо, не отвлекает</div>
+  </div>
+  <div class="arrow-legend">
+    <div class="legend-item">
+      <svg width="40" height="12"><defs><marker id="lg4ph" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0 0,6 2,0 4" fill="#cfd9e8"/></marker></defs><line x1="0" y1="6" x2="34" y2="6" stroke="#cfd9e8" stroke-width="1.8" marker-end="url(#lg4ph)"/></svg>
+      Зависимость фаз
+    </div>
+    <div class="legend-item">
+      <svg width="40" height="12"><defs><marker id="lg4rl" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0 0,6 2,0 4" fill="#cfd9e8"/></marker></defs><line x1="0" y1="6" x2="34" y2="6" stroke="#cfd9e8" stroke-width="1.8" stroke-dasharray="10 5" marker-end="url(#lg4rl)"/></svg>
+      Эстафета ресурса
+    </div>
+  </div>
+  <div class="gantt-wrap" id="gantt4">
+    <div class="gantt-left" id="left4">
+      <div class="gantt-left-header">Инициатива / Фаза</div>
+      <div class="init-row"><span class="init-key">PRJ-10891</span><span class="init-name">Протестировать свёртку базы</span><span class="init-hours">120 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 80 ч</span><span class="avatar avatar-qa">—</span></div>
+      <div class="init-row"><span class="init-key">ITL-304</span><span class="init-name" style="max-width:240px">Подсистема закрытия месяца. Чек лист</span><span class="init-hours">130 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 20 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Разработка · 80 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 20 ч</span><span class="avatar avatar-qa">—</span></div>
+      <div class="phase-row"><span class="phase-label">ОПЭ · Аналитик · 5 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">ОПЭ · Программист · 5 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="init-row"><span class="init-key">ITL-424</span><span class="init-name">Наполнение чек-лист. 37 проверок</span><span class="init-hours">40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="init-row"><span class="init-key">PRJ-10892</span><span class="init-name">Сторно возврата поставщику. Обмен ЕРП</span><span class="init-hours">140 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Анализ · 40 ч</span><span class="avatar avatar-kn">КН</span></div>
+      <div class="phase-row"><span class="phase-label">Разработка · 80 ч</span><span class="avatar avatar-pi">ПИ</span></div>
+      <div class="phase-row"><span class="phase-label">Тестирование · 20 ч</span><span class="avatar avatar-qa">—</span></div>
+    </div>
+    <div class="gantt-right" id="right4">
+      <div class="gantt-header">
+        <div class="months-row">
+          <div class="month-cell" style="grid-column: span 4;">АПР 2026</div>
+          <div class="month-cell" style="grid-column: span 5;">МАЙ 2026</div>
+          <div class="month-cell" style="grid-column: span 5;">ИЮН 2026</div>
+        </div>
+        <div class="weeks-row" id="weeks4"></div>
+      </div>
+      <div class="gantt-body" id="body4">
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":0,"dur":2,"type":"analyst","id":"b4_10891_a"}'></div>
+        <div class="gantt-row" data-bar='{"start":0,"dur":4,"type":"qa","id":"b4_10891_qa"}'></div>
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":1,"dur":2,"type":"analyst","id":"b4_304_a"}'></div>
+        <div class="gantt-row" data-bar='{"start":3,"dur":2,"type":"dev","id":"b4_304_d"}'></div>
+        <div class="gantt-row" data-bar='{"start":4.5,"dur":0.5,"type":"qa","id":"b4_304_qa"}'></div>
+        <div class="gantt-row" data-bar='{"start":5.5,"dur":0.3,"type":"opo","id":"b4_304_oa"}'></div>
+        <div class="gantt-row" data-bar='{"start":5.5,"dur":0.3,"type":"opo","id":"b4_304_od"}'></div>
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":1,"dur":3,"type":"analyst","id":"b4_424_a"}'></div>
+        <div class="gantt-row init-bg"></div>
+        <div class="gantt-row" data-bar='{"start":3,"dur":1.5,"type":"analyst","id":"b4_10892_a"}'></div>
+        <div class="gantt-row" data-bar='{"start":4.5,"dur":3,"type":"dev","id":"b4_10892_d","critical":true}'></div>
+        <div class="gantt-row" data-bar='{"start":7.5,"dur":0.7,"type":"qa","id":"b4_10892_qa"}'></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COMPARISON TABLE ===== -->
+<div class="compare-section">
+  <h2>Сравнительная таблица</h2>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Вариант</th>
+        <th>Плюсы</th>
+        <th>Минусы</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="variant-name">1. DHTMLX-style<br><small style="color:var(--text-sec);font-weight:400">Толстые, контрастные</small></td>
+        <td>
+          <div class="pro">✓ Максимальная читаемость зависимостей</div>
+          <div class="pro">✓ Явное разделение фаза vs ресурс по цвету</div>
+          <div class="pro">✓ Тень даёт глубину, линии не теряются на барах</div>
+        </td>
+        <td>
+          <div class="con">✗ Может загромождать плотный граф</div>
+          <div class="con">✗ Визуально «кричит» — отвлекает от содержания баров</div>
+          <div class="con">✗ Стиль DHTMLX читается как «сторонняя библиотека»</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="variant-name">2. Halo<br><small style="color:var(--text-sec);font-weight:400">Двойной контур</small></td>
+        <td>
+          <div class="pro">✓ Элегантно и профессионально</div>
+          <div class="pro">✓ Линии читаются на любом фоне благодаря подложке</div>
+          <div class="pro">✓ Тонкий верхний слой не загромождает чарт</div>
+        </td>
+        <td>
+          <div class="con">✗ Требует двух SVG-путей на каждую линию (+нагрузка)</div>
+          <div class="con">✗ На очень плотных чартах подложки сливаются</div>
+          <div class="con">✗ Маркеры стрелок чуть сложнее в реализации</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="variant-name">3. Анимированный поток<br><small style="color:var(--text-sec);font-weight:400">Движущийся ресурс</small></td>
+        <td>
+          <div class="pro">✓ Мгновенно понятно направление передачи ресурса</div>
+          <div class="pro">✓ Живая анимация привлекает взгляд только к нужным связям</div>
+          <div class="pro">✓ Wow-эффект при демонстрации PM и заказчику</div>
+        </td>
+        <td>
+          <div class="con">✗ Движение отвлекает при длительной работе</div>
+          <div class="con">✗ PDF/скриншот теряет ключевой эффект</div>
+          <div class="con">✗ Нужна возможность выключить анимацию</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="variant-name">4. Семантический минимализм<br><small style="color:var(--text-sec);font-weight:400">Один цвет, форма = смысл</small></td>
+        <td>
+          <div class="pro">✓ Не конкурирует с цветами баров</div>
+          <div class="pro">✓ Легко читается при большом числе связей</div>
+          <div class="pro">✓ Просто в реализации и поддержке</div>
+        </td>
+        <td>
+          <div class="con">✗ Фаза vs ресурс различить только по форме, не по цвету</div>
+          <div class="con">✗ На тёмном фоне может казаться невыразительным</div>
+          <div class="con">✗ Теряет «дорогой» вид продукта</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="recommend">
+    <strong>Рекомендация:</strong> Вариант 2 (Halo) — лучший баланс между читаемостью и визуальным качеством: линии никогда не теряются на тёмном фоне, а двойной контур добавляет профессиональный вид без излишнего шума; при желании можно добавить анимацию из варианта 3 только на эстафетные связи через тогл «Эстафета».
+  </div>
+</div>
+
+<script>
+const COL_W = 60; // px per week
+const ROW_H = 32;
+const BAR_H = 18;
+const NUM_COLS = 14;
+const TODAY_COL = 5.5; // W6 position (0-indexed from left)
+
+// Bar color map
+const BAR_COLORS = {
+  analyst: 'rgba(0,201,200,0.75)',
+  dev:     'rgba(42,127,191,0.75)',
+  qa:      'rgba(232,134,74,0.75)',
+  opo:     'rgba(82,211,100,0.75)',
+};
+
+// Fill week headers
+function fillWeeks(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  for (let i = 1; i <= NUM_COLS; i++) {
+    const div = document.createElement('div');
+    div.className = 'week-cell';
+    div.textContent = 'W' + i;
+    el.appendChild(div);
+  }
+}
+['weeks1','weeks2','weeks3','weeks4'].forEach(fillWeeks);
+
+// Render bars into gantt body
+function renderBars(bodyId) {
+  const body = document.getElementById(bodyId);
+  if (!body) return;
+
+  // Add grid lines to ALL rows
+  body.querySelectorAll('.gantt-row').forEach(row => {
+    for (let i = 0; i < NUM_COLS; i++) {
+      const col = document.createElement('div');
+      col.style.cssText = `grid-column:${i+1};height:${ROW_H}px;border-right:1px solid rgba(30,51,86,0.4);`;
+      row.appendChild(col);
+    }
+  });
+
+  // Render bars only for rows with data-bar
+  const rows = body.querySelectorAll('.gantt-row[data-bar]');
+  rows.forEach(row => {
+    const cfg = JSON.parse(row.getAttribute('data-bar'));
+
+    // Create bar
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    if (cfg.critical) bar.classList.add('bar-critical');
+    bar.id = cfg.id;
+
+    const left = cfg.start * COL_W;
+    const width = Math.max(cfg.dur * COL_W - 2, 6);
+    bar.style.left = left + 'px';
+    bar.style.width = width + 'px';
+    bar.style.background = BAR_COLORS[cfg.type];
+
+    // Label inside bar
+    const typeLabels = { analyst: 'Анализ', dev: 'Разраб.', qa: 'Тест.', opo: 'ОПЭ' };
+    if (cfg.dur >= 0.8) {
+      bar.textContent = typeLabels[cfg.type] || '';
+    }
+    row.appendChild(bar);
+  });
+}
+['body1','body2','body3','body4'].forEach(renderBars);
+
+// Add today line to each gantt body
+function addTodayLine(bodyId) {
+  const body = document.getElementById(bodyId);
+  if (!body) return;
+  const line = document.createElement('div');
+  line.className = 'today-line';
+  line.style.left = (TODAY_COL * COL_W) + 'px';
+  const label = document.createElement('div');
+  label.className = 'today-label';
+  label.textContent = 'сегодня';
+  label.style.cssText = `position:absolute;top:2px;left:${(TODAY_COL * COL_W) - 22}px;font-size:8px;color:rgba(0,201,200,0.8);white-space:nowrap;z-index:6;pointer-events:none;`;
+  body.appendChild(line);
+  body.appendChild(label);
+}
+['body1','body2','body3','body4'].forEach(addTodayLine);
+
+// =====================
+// ARROW RENDERING ENGINE
+// =====================
+
+// Get bar center-right point (end of bar)
+function getBarRight(barId, bodyEl) {
+  const bar = document.getElementById(barId);
+  if (!bar) return null;
+  const bodyRect = bodyEl.getBoundingClientRect();
+  const barRect = bar.getBoundingClientRect();
+  return {
+    x: barRect.right - bodyRect.left,
+    y: barRect.top - bodyRect.top + BAR_H / 2
+  };
+}
+
+// Get bar center-left point (start of bar)
+function getBarLeft(barId, bodyEl) {
+  const bar = document.getElementById(barId);
+  if (!bar) return null;
+  const bodyRect = bodyEl.getBoundingClientRect();
+  const barRect = bar.getBoundingClientRect();
+  return {
+    x: barRect.left - bodyRect.left,
+    y: barRect.top - bodyRect.top + BAR_H / 2
+  };
+}
+
+// Get bar bottom-center
+function getBarBottom(barId, bodyEl) {
+  const bar = document.getElementById(barId);
+  if (!bar) return null;
+  const bodyRect = bodyEl.getBoundingClientRect();
+  const barRect = bar.getBoundingClientRect();
+  return {
+    x: barRect.right - bodyRect.left - (barRect.width / 2),
+    y: barRect.bottom - bodyRect.top
+  };
+}
+
+// Get bar top-center
+function getBarTop(barId, bodyEl) {
+  const bar = document.getElementById(barId);
+  if (!bar) return null;
+  const bodyRect = bodyEl.getBoundingClientRect();
+  const barRect = bar.getBoundingClientRect();
+  return {
+    x: barRect.right - bodyRect.left - (barRect.width / 2),
+    y: barRect.top - bodyRect.top
+  };
+}
+
+// Build orthogonal L-shape path with rounded corners
+// from → to with radius r
+function orthogonalPath(from, to, r, offset) {
+  // offset: horizontal distance to go right before routing down
+  const exitX = from.x + (offset || 8);
+  const midX = exitX;
+  r = Math.min(r, Math.abs(to.y - from.y) / 2, 4);
+
+  if (Math.abs(from.y - to.y) < 2) {
+    // same row — straight line
+    return `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
+  }
+
+  const goDown = to.y > from.y;
+  const sign = goDown ? 1 : -1;
+
+  // Route: right → down/up → left → arrive
+  // Exit right, go to midX, turn down/up, go to target Y, turn left, arrive
+  const p1x = midX - r;
+  const p1y = from.y;
+  const p2x = midX;
+  const p2y = from.y + sign * r;
+  const p3x = midX;
+  const p3y = to.y - sign * r;
+  const p4x = midX + r;  // not right — we need to go LEFT to target
+  const p4y = to.y;
+
+  // Actually routing: from.x → exitX → turn → to.y → to.x
+  if (midX >= to.x) {
+    // target is to the left - route around
+    const rr = Math.min(r, 6);
+    return `M ${from.x} ${from.y}
+      L ${midX - rr} ${from.y}
+      Q ${midX} ${from.y} ${midX} ${from.y + sign * rr}
+      L ${midX} ${to.y - sign * rr}
+      Q ${midX} ${to.y} ${midX - rr} ${to.y}
+      L ${to.x} ${to.y}`;
+  }
+
+  return `M ${from.x} ${from.y}
+    L ${midX - r} ${from.y}
+    Q ${midX} ${from.y} ${midX} ${from.y + sign * r}
+    L ${midX} ${to.y - sign * r}
+    Q ${midX} ${to.y} ${midX + r} ${to.y}
+    L ${to.x} ${to.y}`;
+}
+
+// Resource relay path (dashed) — exits from bar right, goes right then to target
+function relayPath(from, to, r, laneX) {
+  // laneX: vertical lane for routing (to avoid bars)
+  r = Math.min(r, 4);
+  const goDown = to.y > from.y;
+  const sign = goDown ? 1 : -1;
+  const lane = laneX;
+
+  if (lane >= to.x) {
+    // go left of target
+    return `M ${from.x} ${from.y}
+      L ${lane - r} ${from.y}
+      Q ${lane} ${from.y} ${lane} ${from.y + sign * r}
+      L ${lane} ${to.y - sign * r}
+      Q ${lane} ${to.y} ${lane - r} ${to.y}
+      L ${to.x} ${to.y}`;
+  }
+
+  return `M ${from.x} ${from.y}
+    L ${lane - r} ${from.y}
+    Q ${lane} ${from.y} ${lane} ${from.y + sign * r}
+    L ${lane} ${to.y - sign * r}
+    Q ${lane} ${to.y} ${lane + r} ${to.y}
+    L ${to.x} ${to.y}`;
+}
+
+// Create SVG element
+function createSVG(bodyEl) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  const h = bodyEl.scrollHeight || bodyEl.offsetHeight || 600;
+  const w = bodyEl.scrollWidth || bodyEl.offsetWidth || 900;
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+  svg.style.cssText = `position:absolute;top:0;left:0;width:${w}px;height:${h}px;pointer-events:none;z-index:10;overflow:visible;`;
+  bodyEl.appendChild(svg);
+  return svg;
+}
+
+// Arrow marker definition
+function addDefs(svg, id, color, w, h, shadow) {
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', id + '-phase');
+  marker.setAttribute('markerWidth', w);
+  marker.setAttribute('markerHeight', h);
+  marker.setAttribute('refX', w - 1);
+  marker.setAttribute('refY', h / 2);
+  marker.setAttribute('orient', 'auto');
+  const poly1 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  poly1.setAttribute('points', `0 0, ${w} ${h/2}, 0 ${h}`);
+  poly1.setAttribute('fill', color.phase);
+  marker.appendChild(poly1);
+  defs.appendChild(marker);
+
+  const marker2 = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker2.setAttribute('id', id + '-relay');
+  marker2.setAttribute('markerWidth', w);
+  marker2.setAttribute('markerHeight', h);
+  marker2.setAttribute('refX', w - 1);
+  marker2.setAttribute('refY', h / 2);
+  marker2.setAttribute('orient', 'auto');
+  const poly2 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  poly2.setAttribute('points', `0 0, ${w} ${h/2}, 0 ${h}`);
+  poly2.setAttribute('fill', color.relay);
+  marker2.appendChild(poly2);
+  defs.appendChild(marker2);
+
+  if (shadow) {
+    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    filter.setAttribute('id', id + '-shadow');
+    filter.setAttribute('x', '-20%'); filter.setAttribute('y', '-50%');
+    filter.setAttribute('width', '140%'); filter.setAttribute('height', '200%');
+    const fe = document.createElementNS('http://www.w3.org/2000/svg', 'feDropShadow');
+    fe.setAttribute('dx', '0'); fe.setAttribute('dy', '1');
+    fe.setAttribute('stdDeviation', '1.5');
+    fe.setAttribute('flood-color', 'rgba(0,0,0,0.6)');
+    filter.appendChild(fe);
+    defs.appendChild(filter);
+  }
+
+  svg.appendChild(defs);
+}
+
+// Draw a single arrow path
+function drawArrow(svg, d, stroke, width, dash, markerId, clsName, filter) {
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', d);
+  path.setAttribute('stroke', stroke);
+  path.setAttribute('stroke-width', width);
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
+  if (dash) path.setAttribute('stroke-dasharray', dash);
+  if (markerId) path.setAttribute('marker-end', `url(#${markerId})`);
+  if (clsName) path.setAttribute('class', clsName);
+  if (filter) path.setAttribute('filter', `url(#${filter})`);
+  svg.appendChild(path);
+  return path;
+}
+
+// Draw halo (shadow path + light path)
+function drawHalo(svg, d, shadowColor, lightColor, shadowW, lightW, dash, markerId, markerIdDark) {
+  // Shadow/backing path
+  const bg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  bg.setAttribute('d', d);
+  bg.setAttribute('stroke', shadowColor);
+  bg.setAttribute('stroke-width', shadowW);
+  bg.setAttribute('fill', 'none');
+  bg.setAttribute('stroke-linecap', 'round');
+  bg.setAttribute('stroke-linejoin', 'round');
+  if (dash) bg.setAttribute('stroke-dasharray', dash);
+  if (markerIdDark) bg.setAttribute('marker-end', `url(#${markerIdDark})`);
+  svg.appendChild(bg);
+
+  // Light top path
+  const fg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  fg.setAttribute('d', d);
+  fg.setAttribute('stroke', lightColor);
+  fg.setAttribute('stroke-width', lightW);
+  fg.setAttribute('fill', 'none');
+  fg.setAttribute('stroke-linecap', 'round');
+  fg.setAttribute('stroke-linejoin', 'round');
+  if (dash) fg.setAttribute('stroke-dasharray', dash);
+  if (markerId) fg.setAttribute('marker-end', `url(#${markerId})`);
+  svg.appendChild(fg);
+}
+
+// Define the connections spec (same for all 4 variants)
+// Phase connections (solid): fromBarId → toBarId
+// Relay connections (dashed): fromBarId → toBarId
+
+function getConnections(prefix) {
+  return {
+    phase: [
+      // ITL-304: Анализ→Разработка, Разработка→Тестирование, Тестирование→ОПЭ-Аналитик, Тестирование→ОПЭ-Программист
+      { from: prefix + '_304_a',  to: prefix + '_304_d' },
+      { from: prefix + '_304_d',  to: prefix + '_304_qa' },
+      { from: prefix + '_304_qa', to: prefix + '_304_oa' },
+      { from: prefix + '_304_qa', to: prefix + '_304_od' },
+      // PRJ-10892: Анализ→Разработка, Разработка→Тестирование
+      { from: prefix + '_10892_a', to: prefix + '_10892_d' },
+      { from: prefix + '_10892_d', to: prefix + '_10892_qa' },
+    ],
+    relay: [
+      // Копышков: Анализ(PRJ-10891) → Анализ(ITL-304) → Анализ(ITL-424) → Анализ(PRJ-10892)
+      { from: prefix + '_10891_a', to: prefix + '_304_a',   lane: 2.5 * COL_W },
+      { from: prefix + '_304_a',   to: prefix + '_424_a',   lane: 3.5 * COL_W },
+      { from: prefix + '_424_a',   to: prefix + '_10892_a', lane: 4.6 * COL_W },
+      // Пак Илья: Разработка(ITL-304) → Разработка(PRJ-10892)
+      { from: prefix + '_304_d',   to: prefix + '_10892_d', lane: 5.8 * COL_W },
+    ]
+  };
+}
+
+// Render variant 1 — DHTMLX style
+function renderV1() {
+  const body = document.getElementById('body1');
+  const svg = createSVG(body);
+  addDefs(svg, 'v1', { phase: '#7aa7ff', relay: '#1ee5d8' }, 9, 6, true);
+
+  const conn = getConnections('b');
+
+  conn.phase.forEach(c => {
+    const from = getBarRight(c.from, body);
+    const to   = getBarLeft(c.to, body);
+    if (!from || !to) return;
+    const d = orthogonalPath(from, to, 6, 10);
+    drawArrow(svg, d, '#7aa7ff', 2.2, null, 'v1-phase', null, 'v1-shadow');
+  });
+
+  conn.relay.forEach(c => {
+    const from = getBarRight(c.from, body);
+    const to   = getBarLeft(c.to, body);
+    if (!from || !to) return;
+    const d = relayPath(from, to, 6, c.lane);
+    drawArrow(svg, d, '#1ee5d8', 2.2, '6 3', 'v1-relay', null, 'v1-shadow');
+  });
+}
+
+// Render variant 2 — Halo
+function renderV2() {
+  const body = document.getElementById('body2');
+  const svg = createSVG(body);
+
+  // Add markers
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+
+  function addMarker(id, color) {
+    const m = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+    m.setAttribute('id', id);
+    m.setAttribute('markerWidth', '8'); m.setAttribute('markerHeight', '5');
+    m.setAttribute('refX', '7'); m.setAttribute('refY', '2.5');
+    m.setAttribute('orient', 'auto');
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    p.setAttribute('points', '0 0, 8 2.5, 0 5');
+    p.setAttribute('fill', color);
+    m.appendChild(p);
+    defs.appendChild(m);
+  }
+  addMarker('v2-ph-dark', '#040810');
+  addMarker('v2-ph-light', '#a3c4ff');
+  addMarker('v2-rl-dark', '#040810');
+  addMarker('v2-rl-light', '#5eead4');
+  svg.appendChild(defs);
+
+  const conn = getConnections('b2');
+
+  conn.phase.forEach(c => {
+    const from = getBarRight(c.from, body);
+    const to   = getBarLeft(c.to, body);
+    if (!from || !to) return;
+    const d = orthogonalPath(from, to, 6, 10);
+    drawHalo(svg, d, '#040810', '#a3c4ff', 3.5, 1.6, null, 'v2-ph-light', 'v2-ph-dark');
+  });
+
+  conn.relay.forEach(c => {
+    const from = getBarRight(c.from, body);
+    const to   = getBarLeft(c.to, body);
+    if (!from || !to) return;
+    const d = relayPath(from, to, 6, c.lane);
+    drawHalo(svg, d, '#040810', '#5eead4', 3.5, 1.6, '5 3', 'v2-rl-light', 'v2-rl-dark');
+  });
+}
+
+// Render variant 3 — Animated flow
+function renderV3() {
+  const body = document.getElementById('body3');
+  const svg = createSVG(body);
+  addDefs(svg, 'v3', { phase: '#7aa7ff', relay: '#00e6c0' }, 9, 6, false);
+
+  const conn = getConnections('b3');
+
+  conn.phase.forEach(c => {
+    const from = getBarRight(c.from, body);
+    const to   = getBarLeft(c.to, body);
+    if (!from || !to) return;
+    const d = orthogonalPath(from, to, 6, 10);
+    drawArrow(svg, d, '#7aa7ff', 2, null, 'v3-phase', null, null);
+  });
+
+  conn.relay.forEach(c => {
+    const from = getBarRight(c.from, body);
+    const to   = getBarLeft(c.to, body);
+    if (!from || !to) return;
+    const d = relayPath(from, to, 6, c.lane);
+    drawArrow(svg, d, '#00e6c0', 2, '8 4', 'v3-relay', 'rp-flow', null);
+  });
+}
+
+// Render variant 4 — Semantic minimalism
+function renderV4() {
+  const body = document.getElementById('body4');
+  const svg = createSVG(body);
+  addDefs(svg, 'v4', { phase: '#cfd9e8', relay: '#cfd9e8' }, 7, 5, false);
+
+  const conn = getConnections('b4');
+
+  conn.phase.forEach(c => {
+    const from = getBarRight(c.from, body);
+    const to   = getBarLeft(c.to, body);
+    if (!from || !to) return;
+    const d = orthogonalPath(from, to, 4, 8);
+    drawArrow(svg, d, '#cfd9e8', 1.8, null, 'v4-phase', null, null);
+  });
+
+  conn.relay.forEach(c => {
+    const from = getBarRight(c.from, body);
+    const to   = getBarLeft(c.to, body);
+    if (!from || !to) return;
+    const d = relayPath(from, to, 4, c.lane);
+    drawArrow(svg, d, '#cfd9e8', 1.8, '10 5', 'v4-relay', null, null);
+  });
+}
+
+// Wait for layout then render all
+window.addEventListener('load', () => {
+  // Small delay to ensure getBoundingClientRect is settled
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      renderV1();
+      renderV2();
+      renderV3();
+      renderV4();
+    }, 100);
+  });
+});
+</script>
+</body>
+</html>

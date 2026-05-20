@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Связи на /resource-planning — 4 варианта</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1d24;
+  color: #e4e7eb;
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  min-height: 100vh;
+  padding: 32px 24px 64px;
+}
+
+/* ─── ШАПКА ─── */
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f3f4f6;
+  letter-spacing: -0.3px;
+  margin-bottom: 6px;
+}
+.page-header p {
+  font-size: 14px;
+  color: #9ca3af;
+}
+.legend {
+  display: inline-flex;
+  gap: 28px;
+  margin-top: 16px;
+  background: #252830;
+  border: 1px solid #363a45;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  color: #c9d0da;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.legend-line {
+  width: 48px;
+  height: 2px;
+  background: #6c8cff;
+  border-radius: 2px;
+}
+.legend-dash {
+  width: 48px;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, #2dd4bf 0, #2dd4bf 8px, transparent 8px, transparent 13px);
+}
+
+/* ─── СЕКЦИЯ ─── */
+.section {
+  background: #252830;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 32px;
+  border: 1px solid #363a45;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f3f4f6;
+  margin-bottom: 4px;
+}
+.section-desc {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* ─── GANTT WRAPPER ─── */
+.gantt-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+.gantt-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.gantt-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.row-label {
+  width: 160px;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+  padding-right: 12px;
+  white-space: nowrap;
+}
+.bars-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+/* ─── BAR ─── */
+.bar {
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 7px;
+  position: relative;
+  white-space: nowrap;
+  font-size: 12px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.bar-analyst  { background: rgba(82,196,26,0.82);  border: 1px solid rgba(115,230,50,0.6); }
+.bar-dev      { background: rgba(22,119,255,0.82); border: 1px solid rgba(60,150,255,0.6); }
+.bar-qa       { background: rgba(250,140,22,0.82); border: 1px solid rgba(255,170,60,0.6); }
+.bar-opo      { background: rgba(140,140,140,0.82);border: 1px solid rgba(180,180,180,0.5); }
+
+.avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+.av-kop { background: linear-gradient(135deg,#7c3aed,#4f46e5); }
+.av-pet { background: linear-gradient(135deg,#0891b2,#0e7490); }
+.av-iva { background: linear-gradient(135deg,#d97706,#b45309); }
+.av-orl { background: linear-gradient(135deg,#059669,#047857); }
+.av-sid { background: linear-gradient(135deg,#db2777,#9d174d); }
+.av-nik { background: linear-gradient(135deg,#dc2626,#b91c1c); }
+.av-tim { background: linear-gradient(135deg,#6b7280,#4b5563); }
+
+.bar-text { font-size: 11px; opacity: 0.95; line-height: 1; }
+
+/* ─── SVG OVERLAY ─── */
+.svg-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* ─── АНИМАЦИИ ─── */
+@keyframes flow {
+  to { stroke-dashoffset: -24; }
+}
+.flow-arrow {
+  animation: flow 1s linear infinite;
+}
+@keyframes pulse-bright {
+  0%, 100% { filter: brightness(1); }
+  50%       { filter: brightness(1.7) drop-shadow(0 0 4px #6c8cff); }
+}
+.phase-arrow-v3:hover {
+  animation: pulse-bright 1.2s ease-in-out infinite;
+}
+
+/* ─── СРАВНЕНИЕ ─── */
+.compare-section {
+  background: #252830;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #363a45;
+  margin-top: 8px;
+}
+.compare-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f3f4f6;
+  margin-bottom: 20px;
+}
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .compare-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.compare-card {
+  background: #1e2028;
+  border-radius: 6px;
+  padding: 16px;
+  border: 1px solid #363a45;
+}
+.compare-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c9d0da;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #363a45;
+}
+.pros, .cons { list-style: none; font-size: 12px; line-height: 1.6; }
+.pros li::before { content: '✓ '; color: #52c41a; font-weight: 700; }
+.cons li::before { content: '✗ '; color: #f5222d; font-weight: 700; }
+.pros { color: #a7f3d0; margin-bottom: 10px; }
+.cons { color: #fca5a5; }
+.pros li, .cons li { margin-bottom: 3px; }
+
+/* variant badge */
+.vbadge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-bottom: 4px;
+}
+.vbadge-1 { background: #1e2d8a; color: #a5b4fc; }
+.vbadge-2 { background: #1a2e25; color: #6ee7b7; }
+.vbadge-3 { background: #2d1b4e; color: #c4b5fd; }
+.vbadge-4 { background: #1f2937; color: #94a3b8; }
+
+hr.section-sep { border: none; border-top: 1px solid #363a45; margin: 8px 0 14px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     ШАПКА
+════════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <h1>Связи на /resource-planning — 4 варианта</h1>
+  <p>Сравнение стилей отрисовки стрелок фаз и ресурсов</p>
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-line"></div>
+      <span>── связь фаз (последовательность)</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dash"></div>
+      <span>- - - связь ресурса (исполнитель)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     ВСПОМОГАТЕЛЬНЫЙ ШАБЛОН (скрыт, используется как reference для JS)
+════════════════════════════════════════════════ -->
+<!-- Gantt строится одинаково для всех секций через JS ниже -->
+
+<!-- ═══════════════════════════════════════════════════════
+     СЕКЦИЯ 1 — DHTMLX-style
+════════════════════════════════════════════════════════ -->
+<div class="section" id="s1">
+  <div class="vbadge vbadge-1">Вариант 1</div>
+  <div class="section-title">DHTMLX-style — толстые насыщенные линии</div>
+  <div class="section-desc">Стрелки жирные 2.5px с тенью, цвет фаз — индиго, цвет ресурса — бирюза. Маркеры 10×7. Ориентир: enterprise Gantt-библиотеки.</div>
+  <div class="gantt-wrapper" id="gantt1"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     СЕКЦИЯ 2 — Двойной контур (halo)
+════════════════════════════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="vbadge vbadge-2">Вариант 2</div>
+  <div class="section-title">Двойной контур (halo) — тёмная подложка</div>
+  <div class="section-desc">Каждая стрелка — два path: тёмный ореол снизу + цветная линия сверху. Стрелка "вырезана" из фона, видна на любом баре.</div>
+  <div class="gantt-wrapper" id="gantt2"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     СЕКЦИЯ 3 — Анимированный поток
+════════════════════════════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="vbadge vbadge-3">Вариант 3</div>
+  <div class="section-title">Анимированный поток — движущийся пунктир ресурса</div>
+  <div class="section-desc">Связи фаз — статичные сплошные. Связи ресурса — анимированный пунктир, "течёт" по направлению передачи исполнителя. Hover на фазовой стрелке — pulse.</div>
+  <div class="gantt-wrapper" id="gantt3"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     СЕКЦИЯ 4 — Семантический минимализм
+════════════════════════════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="vbadge vbadge-4">Вариант 4</div>
+  <div class="section-title">Семантический минимализм — монохром, форма важнее цвета</div>
+  <div class="section-desc">Все стрелки одного нейтрального цвета #c8d4e8. Различие — только форма: сплошная vs пунктирная. Акцент на содержании баров, не на связях.</div>
+  <div class="gantt-wrapper" id="gantt4"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     СРАВНЕНИЕ
+════════════════════════════════════════════════════════ -->
+<div class="compare-section">
+  <div class="compare-title">Сравнение вариантов</div>
+  <div class="compare-grid">
+
+    <div class="compare-card">
+      <div class="compare-card-title">Вариант 1 · DHTMLX-style</div>
+      <ul class="pros">
+        <li>Отлично видны даже при плотном расположении баров</li>
+        <li>Цветовое разделие фаз/ресурса работает интуитивно</li>
+        <li>Тень добавляет глубину, не перегружает</li>
+      </ul>
+      <ul class="cons">
+        <li>При 20+ стрелках экран становится «шумным»</li>
+        <li>Два насыщенных цвета конкурируют с цветами баров</li>
+        <li>Требует точной настройки z-index под любой фон бара</li>
+      </ul>
+    </div>
+
+    <div class="compare-card">
+      <div class="compare-card-title">Вариант 2 · Halo (двойной контур)</div>
+      <ul class="pros">
+        <li>Максимальная читаемость: видна на любом фоне бара</li>
+        <li>Профессиональный вид — как в Figma/Miro</li>
+        <li>Разделение фаз/ресурса по цвету + ореол как бонус</li>
+      </ul>
+      <ul class="cons">
+        <li>Самый сложный в реализации (двойной path + маркеры)</li>
+        <li>При сотнях стрелок — заметная нагрузка на SVG-рендер</li>
+        <li>Ореол немного «утолщает» линию визуально</li>
+      </ul>
+    </div>
+
+    <div class="compare-card">
+      <div class="compare-card-title">Вариант 3 · Анимированный поток</div>
+      <ul class="pros">
+        <li>Связь ресурса мгновенно считывается — анимация = движение исполнителя</li>
+        <li>Фазовые связи спокойны — иерархия внимания соблюдена</li>
+        <li>Hover-pulse подчёркивает фазовую зависимость по запросу</li>
+      </ul>
+      <ul class="cons">
+        <li>Анимация отвлекает при длительной работе со страницей</li>
+        <li>Нужна опция «остановить анимацию» (prefers-reduced-motion)</li>
+        <li>Сложнее протестировать и заскринить для отчётов</li>
+      </ul>
+    </div>
+
+    <div class="compare-card">
+      <div class="compare-card-title">Вариант 4 · Минимализм</div>
+      <ul class="pros">
+        <li>Не конкурирует с цветами баров — фокус на содержании</li>
+        <li>Легко масштабируется: 50 стрелок не перегружают</li>
+        <li>Простейшая реализация и поддержка</li>
+      </ul>
+      <ul class="cons">
+        <li>Связь ресурса неочевидна без легенды</li>
+        <li>На светлых барах (аналитика) линия сливается</li>
+        <li>Недостаточно выразителен для PM-презентаций</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT — СТРОИТ GANTT ДЛЯ КАЖДОЙ СЕКЦИИ
+════════════════════════════════════════════════════════ -->
+<script>
+// ──────────────────────────────────────────────
+// ДАННЫЕ
+// ──────────────────────────────────────────────
+const ROWS = [
+  { id: 'crm',   label: 'CRM миграция',         offset: 0   },
+  { id: 'mkt',   label: 'Маркетплейс v2',        offset: 60  },
+  { id: 'bil',   label: 'Биллинг рефакторинг',   offset: 30  },
+];
+
+// ширины баров (px), разные чтобы имитировать реальный Gantt
+const BAR_WIDTHS = {
+  crm: { analyst: 148, dev: 172, qa: 132, opo: 110 },
+  mkt: { analyst: 140, dev: 180, qa: 148, opo: 100 },
+  bil: { analyst: 136, dev: 164, qa: 140, opo: 116 },
+};
+
+const GAP = 10; // gap между барами
+
+const PHASES = ['analyst','dev','qa','opo'];
+const PHASE_LABELS = { analyst:'Аналитика', dev:'Разработка', qa:'Тестирование', opo:'ОПЭ' };
+const PHASE_CLASS  = { analyst:'bar-analyst', dev:'bar-dev', qa:'bar-qa', opo:'bar-opo' };
+
+const EMPLOYEES = {
+  crm: {
+    analyst: { name:'Копышков А.',  av:'КА', cls:'av-kop', hours:120 },
+    dev:     { name:'Петров С.',    av:'ПС', cls:'av-pet', hours:260 },
+    qa:      { name:'Иванов Д.',    av:'ИД', cls:'av-iva', hours:88  },
+    opo:     { name:'Орлов В.',     av:'ОВ', cls:'av-orl', hours:40  },
+  },
+  mkt: {
+    analyst: { name:'Копышков А.',  av:'КА', cls:'av-kop', hours:108 },
+    dev:     { name:'Петров С.',    av:'ПС', cls:'av-pet', hours:240 },
+    qa:      { name:'Сидорова Е.', av:'СЕ', cls:'av-sid', hours:100 },
+    opo:     { name:'Орлов В.',     av:'ОВ', cls:'av-orl', hours:36  },
+  },
+  bil: {
+    analyst: { name:'Копышков А.',  av:'КА', cls:'av-kop', hours:96  },
+    dev:     { name:'Никитин Р.',   av:'НР', cls:'av-nik', hours:200 },
+    qa:      { name:'Сидорова Е.', av:'СЕ', cls:'av-sid', hours:92  },
+    opo:     { name:'Тимофеев Б.', av:'ТБ', cls:'av-tim', hours:44  },
+  },
+};
+
+// ──────────────────────────────────────────────
+// ВЫЧИСЛЕНИЕ ПОЗИЦИЙ
+// ──────────────────────────────────────────────
+const LABEL_W = 164; // ширина колонки ярлыков
+
+function computeBarPositions() {
+  // positions[rowId][phase] = { x, w, cx (center-x), rx (right-x) }
+  const pos = {};
+  for (const row of ROWS) {
+    pos[row.id] = {};
+    let x = row.offset;
+    for (const ph of PHASES) {
+      const w = BAR_WIDTHS[row.id][ph];
+      pos[row.id][ph] = { x, w, cx: x + w/2, rx: x + w };
+      x += w + GAP;
+    }
+  }
+  return pos;
+}
+
+const barPos = computeBarPositions();
+
+// Общая ширина рабочей области
+function totalWidth() {
+  let max = 0;
+  for (const row of ROWS) {
+    const last = barPos[row.id]['opo'];
+    max = Math.max(max, last.rx);
+  }
+  return max + 20;
+}
+
+const WORK_W = totalWidth();
+const ROW_H  = 36;
+const ROW_GAP = 14;
+const TOTAL_H = ROWS.length * ROW_H + (ROWS.length - 1) * ROW_GAP + 20;
+
+// Y-center для строки (ось бара)
+function rowY(rowIdx) {
+  return rowIdx * (ROW_H + ROW_GAP) + ROW_H / 2 + 10;
+}
+
+// ──────────────────────────────────────────────
+// ПОСТРОЕНИЕ GANTT HTML
+// ──────────────────────────────────────────────
+function buildGantt(containerId, svgBuilder) {
+  const container = document.getElementById(containerId);
+
+  // Считаем точные размеры после рендера → используем approx
+  let html = `<div class="gantt-grid">`;
+
+  ROWS.forEach((row, ri) => {
+    html += `<div class="gantt-row" data-row="${row.id}" data-ri="${ri}">
+      <div class="row-label">${row.label}</div>
+      <div class="bars-container" style="position:relative;">`;
+
+    // Смещение-отступ слева
+    if (row.offset > 0) {
+      html += `<div style="width:${row.offset}px;flex-shrink:0;"></div>`;
+    }
+
+    PHASES.forEach((ph, pi) => {
+      const emp = EMPLOYEES[row.id][ph];
+      if (pi > 0) {
+        html += `<div style="width:${GAP}px;flex-shrink:0;"></div>`;
+      }
+      const w = BAR_WIDTHS[row.id][ph];
+      html += `
+        <div class="bar ${PHASE_CLASS[ph]}"
+             data-row="${row.id}" data-phase="${ph}"
+             style="width:${w}px;"
+             id="${containerId}-${row.id}-${ph}">
+          <div class="avatar ${emp.cls}">${emp.av}</div>
+          <span class="bar-text">${emp.name} · ${emp.hours}ч</span>
+        </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  html += `</div>`;
+  container.innerHTML = html;
+
+  // Теперь рисуем SVG поверх
+  // Нам нужны реальные координаты баров
+  // Используем getBoundingClientRect относительно wrapper
+  setTimeout(() => {
+    const grid = container.querySelector('.gantt-grid');
+    const gridRect = grid.getBoundingClientRect();
+
+    // Собираем bounding rects всех баров
+    const rects = {};
+    ROWS.forEach((row, ri) => {
+      rects[row.id] = {};
+      PHASES.forEach(ph => {
+        const el = document.getElementById(`${containerId}-${row.id}-${ph}`);
+        const r = el.getBoundingClientRect();
+        rects[row.id][ph] = {
+          left:   r.left   - gridRect.left,
+          right:  r.right  - gridRect.left,
+          top:    r.top    - gridRect.top,
+          bottom: r.bottom - gridRect.top,
+          cy:     (r.top + r.bottom) / 2 - gridRect.top,
+          cx:     (r.left + r.right) / 2 - gridRect.left,
+        };
+      });
+    });
+
+    const svgW = gridRect.width;
+    const svgH = gridRect.height;
+
+    const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svgEl.setAttribute('width', svgW);
+    svgEl.setAttribute('height', svgH);
+    svgEl.style.position = 'absolute';
+    svgEl.style.top = '0';
+    svgEl.style.left = '0';
+    svgEl.style.pointerEvents = 'none';
+    svgEl.style.overflow = 'visible';
+
+    svgBuilder(svgEl, rects, svgW, svgH);
+
+    grid.style.position = 'relative';
+    grid.appendChild(svgEl);
+  }, 60);
+}
+
+// ──────────────────────────────────────────────
+// ОБЩИЙ ПУТЬ СТРЕЛКИ (orthogonal L-shape r=8)
+// ──────────────────────────────────────────────
+// from: {x,y}  to: {x,y}
+// Если from и to на разных Y → вертикальная секция + горизонтальная
+// Если от правого края → горизонтальная + (опционально вертикальная) + горизонтальная
+
+function arrowPath(from, to, r8 = 8) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+
+  if (Math.abs(dy) < 2) {
+    // Чисто горизонтальная
+    return `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
+  }
+
+  r8 = Math.min(r8, Math.abs(dy) / 2, Math.abs(dx) / 2);
+
+  // Выходим горизонтально из from, поворачиваем, идём вертикально, поворачиваем, заходим горизонтально
+  const midX = from.x + dx / 2;
+
+  // right→ down/up → right
+  if (dx >= 0) {
+    const sign = dy > 0 ? 1 : -1;
+    return `M ${from.x} ${from.y}
+      L ${midX - r8} ${from.y}
+      Q ${midX} ${from.y} ${midX} ${from.y + sign * r8}
+      L ${midX} ${to.y - sign * r8}
+      Q ${midX} ${to.y} ${midX + r8} ${to.y}
+      L ${to.x} ${to.y}`;
+  } else {
+    // dx < 0: выходим вправо, petля вниз
+    const sign = dy > 0 ? 1 : -1;
+    const detour = 24;
+    const ex = from.x + detour;
+    return `M ${from.x} ${from.y}
+      L ${ex - r8} ${from.y}
+      Q ${ex} ${from.y} ${ex} ${from.y + sign * r8}
+      L ${ex} ${to.y - sign * r8}
+      Q ${ex} ${to.y} ${ex - r8} ${to.y}
+      L ${to.x} ${to.y}`;
+  }
+}
+
+// Путь для связи фаз: horizontal только (правый край → левый край следующего бара)
+function phaseArrowPath(fromRect, toRect) {
+  const fx = fromRect.right;
+  const fy = fromRect.cy;
+  const tx = toRect.left;
+  const ty = toRect.cy;
+  if (Math.abs(fy - ty) < 2) {
+    return `M ${fx} ${fy} L ${tx} ${ty}`;
+  }
+  return arrowPath({x: fx, y: fy}, {x: tx, y: ty});
+}
+
+// Путь для связи ресурса: правый(или левый) край одного бара → левый(или правый) другого
+// Идёт снизу строки чтобы не пересекать бары
+function resourceArrowPath(fromRect, toRect, laneOffset) {
+  // Выходим из правого края fromRect, идём вниз на lane, горизонтально, вверх к toRect
+  const fx = fromRect.right - 4;
+  const fy = fromRect.cy;
+  const tx = toRect.left - 4 + 4;
+  const ty = toRect.cy;
+  const laneY = Math.max(fromRect.bottom, toRect.bottom) + laneOffset;
+  const r = 8;
+
+  const signF = 1; // down from from
+  const signT = -1; // up to to
+
+  return `M ${fx} ${fy}
+    L ${fx} ${laneY - r}
+    Q ${fx} ${laneY} ${fx + r} ${laneY}
+    L ${tx - r} ${laneY}
+    Q ${tx} ${laneY} ${tx} ${laneY - r}
+    L ${tx} ${ty}`;
+}
+
+// ──────────────────────────────────────────────
+// МАРКЕР (arrowhead)
+// ──────────────────────────────────────────────
+function addMarker(svg, id, color, w, h, stroke, strokeW) {
+  const defs = svg.querySelector('defs') || (() => {
+    const d = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    svg.insertBefore(d, svg.firstChild);
+    return d;
+  })();
+
+  const m = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  m.setAttribute('id', id);
+  m.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  m.setAttribute('refX', w);
+  m.setAttribute('refY', h/2);
+  m.setAttribute('markerWidth', w);
+  m.setAttribute('markerHeight', h);
+  m.setAttribute('orient', 'auto');
+
+  const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  poly.setAttribute('points', `0,0 ${w},${h/2} 0,${h}`);
+  poly.setAttribute('fill', color);
+  if (stroke) {
+    poly.setAttribute('stroke', stroke);
+    poly.setAttribute('stroke-width', strokeW || 1);
+  }
+  m.appendChild(poly);
+  defs.appendChild(m);
+  return id;
+}
+
+function makePath(svg, d, attrs) {
+  const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  p.setAttribute('d', d);
+  p.setAttribute('fill', 'none');
+  for (const [k,v] of Object.entries(attrs)) {
+    p.setAttribute(k, v);
+  }
+  svg.appendChild(p);
+  return p;
+}
+
+// ──────────────────────────────────────────────
+// СВЯЗИ (какие пунктирные, какие сплошные)
+// ──────────────────────────────────────────────
+// Сплошные: внутри каждой инициативы analyst→dev, dev→qa, qa→opo (9 штук)
+// Пунктирные:
+//   Копышков: analyst(crm)→analyst(mkt), analyst(mkt)→analyst(bil)
+//   Петров:   dev(crm)→dev(mkt)
+//   Сидорова: qa(mkt)→qa(bil)
+
+function phaseArrows(rects) {
+  const arr = [];
+  for (const row of ROWS) {
+    for (let i = 0; i < PHASES.length - 1; i++) {
+      arr.push({ from: rects[row.id][PHASES[i]], to: rects[row.id][PHASES[i+1]] });
+    }
+  }
+  return arr;
+}
+
+function resourceArrows(rects) {
+  return [
+    { from: rects['crm']['analyst'],  to: rects['mkt']['analyst'], lane: 8 },
+    { from: rects['mkt']['analyst'],  to: rects['bil']['analyst'], lane: 16 },
+    { from: rects['crm']['dev'],      to: rects['mkt']['dev'],     lane: 8  },
+    { from: rects['mkt']['qa'],       to: rects['bil']['qa'],      lane: 8  },
+  ];
+}
+
+// ══════════════════════════════════════════════
+// ВАРИАНТ 1: DHTMLX-style
+// ══════════════════════════════════════════════
+function buildSvgV1(svg, rects) {
+  addMarker(svg, 'v1-phase-head',    '#4a6cf7', 10, 7, null, 0);
+  addMarker(svg, 'v1-resource-head', '#00b8a3', 10, 7, null, 0);
+
+  const shadow = 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))';
+
+  for (const a of phaseArrows(rects)) {
+    const d = phaseArrowPath(a.from, a.to);
+    makePath(svg, d, {
+      stroke: '#4a6cf7', 'stroke-width': 2.5,
+      filter: shadow,
+      'marker-end': 'url(#v1-phase-head)',
+    });
+  }
+
+  for (const a of resourceArrows(rects)) {
+    const d = resourceArrowPath(a.from, a.to, a.lane);
+    makePath(svg, d, {
+      stroke: '#00b8a3', 'stroke-width': 2.5,
+      'stroke-dasharray': '6 3',
+      filter: shadow,
+      'marker-end': 'url(#v1-resource-head)',
+    });
+  }
+}
+
+// ══════════════════════════════════════════════
+// ВАРИАНТ 2: Двойной контур (halo)
+// ══════════════════════════════════════════════
+function buildSvgV2(svg, rects) {
+  // Маркеры с тёмной обводкой
+  addMarker(svg, 'v2-phase-head',    '#6c8cff', 9, 6, '#0a0c12', 1);
+  addMarker(svg, 'v2-resource-head', '#2dd4bf', 9, 6, '#0a0c12', 1);
+
+  for (const a of phaseArrows(rects)) {
+    const d = phaseArrowPath(a.from, a.to);
+    // Подложка
+    makePath(svg, d, { stroke: '#0a0c12', 'stroke-width': 3.8 });
+    // Цветная линия
+    makePath(svg, d, {
+      stroke: '#6c8cff', 'stroke-width': 1.8,
+      'marker-end': 'url(#v2-phase-head)',
+    });
+  }
+
+  for (const a of resourceArrows(rects)) {
+    const d = resourceArrowPath(a.from, a.to, a.lane);
+    makePath(svg, d, { stroke: '#0a0c12', 'stroke-width': 3.8 });
+    makePath(svg, d, {
+      stroke: '#2dd4bf', 'stroke-width': 1.8,
+      'stroke-dasharray': '5 3',
+      'marker-end': 'url(#v2-resource-head)',
+    });
+  }
+}
+
+// ══════════════════════════════════════════════
+// ВАРИАНТ 3: Анимированный поток
+// ══════════════════════════════════════════════
+function buildSvgV3(svg, rects) {
+  // Добавляем CSS-анимацию в <style> если нет
+  addMarker(svg, 'v3-phase-head',    '#4a6cf7', 9, 6, null, 0);
+  addMarker(svg, 'v3-resource-head', '#00b8a3', 9, 6, null, 0);
+
+  for (const a of phaseArrows(rects)) {
+    const d = phaseArrowPath(a.from, a.to);
+    const p = makePath(svg, d, {
+      stroke: '#4a6cf7', 'stroke-width': 2.5,
+      'marker-end': 'url(#v3-phase-head)',
+      class: 'phase-arrow-v3',
+      style: 'cursor:default; pointer-events:stroke;',
+    });
+  }
+
+  for (const a of resourceArrows(rects)) {
+    const d = resourceArrowPath(a.from, a.to, a.lane);
+    makePath(svg, d, {
+      stroke: '#00b8a3', 'stroke-width': 2.5,
+      'stroke-dasharray': '8 4',
+      class: 'flow-arrow',
+      'marker-end': 'url(#v3-resource-head)',
+    });
+  }
+}
+
+// ══════════════════════════════════════════════
+// ВАРИАНТ 4: Семантический минимализм
+// ══════════════════════════════════════════════
+function buildSvgV4(svg, rects) {
+  const c = '#c8d4e8';
+  addMarker(svg, 'v4-head', c, 8, 5, null, 0);
+
+  for (const a of phaseArrows(rects)) {
+    const d = phaseArrowPath(a.from, a.to);
+    makePath(svg, d, {
+      stroke: c, 'stroke-width': 2,
+      'marker-end': 'url(#v4-head)',
+    });
+  }
+
+  for (const a of resourceArrows(rects)) {
+    const d = resourceArrowPath(a.from, a.to, a.lane);
+    makePath(svg, d, {
+      stroke: c, 'stroke-width': 2,
+      'stroke-dasharray': '10 5',
+      'marker-end': 'url(#v4-head)',
+    });
+  }
+}
+
+// ──────────────────────────────────────────────
+// ИНИЦИАЛИЗАЦИЯ
+// ──────────────────────────────────────────────
+buildGantt('gantt1', buildSvgV1);
+buildGantt('gantt2', buildSvgV2);
+buildGantt('gantt3', buildSvgV3);
+buildGantt('gantt4', buildSvgV4);
+</script>
+</body>
+</html>
